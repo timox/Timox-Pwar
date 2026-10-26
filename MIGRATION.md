@@ -92,3 +92,5 @@ no claim of a releasable or stable audio product from this source migration.
 - Linux library build wiring now explicitly links Threads::Threads for its existing
   pthread calls; Linux builds, C11 queue tests and callbacks remain unverified.
 - No audio, UDP, remote host, installation, registration or publication performed.
+
+Git attributes disable automatic text normalization for this snapshot. This preserves the exact imported bytes and SHA-256 across clones; verify the committed blobs as well as the working tree before updating these pins.
