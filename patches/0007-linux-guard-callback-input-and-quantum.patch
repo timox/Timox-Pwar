@@ -1,0 +1,53 @@
+--- a/linux/libpwar.c
++++ b/linux/libpwar.c
+@@ -259,23 +259,45 @@ static void on_process(void *userdata, struct spa_io_position *position) {
+     struct data *data = (struct data *)userdata;
+-    float *in = pw_filter_get_dsp_buffer(data->in_port, position->clock.duration);
+-    float *left_out = pw_filter_get_dsp_buffer(data->left_out_port, position->clock.duration);
+-    float *right_out = pw_filter_get_dsp_buffer(data->right_out_port, position->clock.duration);
+-
+-    uint32_t n_samples = position->clock.duration;
++    if (!data || !position || position->clock.duration == 0)
++        return;
++    if (position->clock.duration > UINT32_MAX) {
++        latency_manager_report_xrun();
++        return;
++    }
++    const uint32_t n_samples = (uint32_t)position->clock.duration;
++    if (!data->passthrough_test && n_samples > PWAR_PACKET_MAX_CHUNK_SIZE) {
++        // Do not fetch input or enter the fixed-size network packet path.
++        float *left_out = pw_filter_get_dsp_buffer(data->left_out_port, n_samples);
++        float *right_out = pw_filter_get_dsp_buffer(data->right_out_port, n_samples);
++        if (left_out) memset(left_out, 0, (size_t)n_samples * sizeof(float));
++        if (right_out) memset(right_out, 0, (size_t)n_samples * sizeof(float));
++        latency_manager_report_xrun();
++        return;
++    }
++    float *in = pw_filter_get_dsp_buffer(data->in_port, n_samples);
++    float *left_out = pw_filter_get_dsp_buffer(data->left_out_port, n_samples);
++    float *right_out = pw_filter_get_dsp_buffer(data->right_out_port, n_samples);
++
++    // PipeWire may provide no input buffer during graph changes/startup.
++    if (!in) {
++        if (left_out) memset(left_out, 0, (size_t)n_samples * sizeof(float));
++        if (right_out) memset(right_out, 0, (size_t)n_samples * sizeof(float));
++        latency_manager_report_xrun();
++        return;
++    }
+     if (data->passthrough_test) {
+         if (left_out)
+             memcpy(left_out, in, n_samples * sizeof(float));
+         if (right_out)
+             memcpy(right_out, in, n_samples * sizeof(float));
+         return;
+     }
+ 
+     if (data->oneshot_mode) {
+         // Use one-shot processing, i.e. Linux send, Windows process, Linux receive in one go
+         process_one_shot(data, in, n_samples, left_out, right_out);
+     }
+     else {
+         // Use ping-pong processing, i.e. Linux send, Windows process, Linux receive in chunks
+         process_ping_pong(data, in, n_samples, left_out, right_out);
+     }
+ }

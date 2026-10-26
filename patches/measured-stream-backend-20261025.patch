@@ -1,0 +1,335 @@
+diff --git a/linux/CMakeLists.txt b/linux/CMakeLists.txt
+index 93de600..6ea0da9 100644
+--- a/linux/CMakeLists.txt
++++ b/linux/CMakeLists.txt
+@@ -52,6 +52,16 @@ target_link_libraries(pwar_cli
+ 
+ target_compile_options(pwar_cli PRIVATE ${PIPEWIRE_CFLAGS_OTHER})
+ 
++# Candidate replacement backend: PipeWire handles graph/wire rate conversion;
++# only the worker touches UDP. Kept separate while qualification is in progress.
++find_package(Threads REQUIRED)
++add_executable(pwar_stream_cli pwar_cli.c pwar_stream_relay.c
++    ${CMAKE_SOURCE_DIR}/protocol/pwar_router.c)
++set_property(TARGET pwar_stream_cli PROPERTY C_STANDARD 11)
++target_include_directories(pwar_stream_cli PRIVATE ${PIPEWIRE_INCLUDE_DIRS})
++target_link_libraries(pwar_stream_cli ${PIPEWIRE_LIBRARIES} ${MATH_LIB} Threads::Threads)
++target_compile_options(pwar_stream_cli PRIVATE ${PIPEWIRE_CFLAGS_OTHER} -Wall -Wextra)
++
+ # GUI executable (only if Qt5 is found)
+ if(Qt5_FOUND)
+     # Enable automoc for Qt
+diff --git a/protocol/pwar_audio_queue.h b/protocol/pwar_audio_queue.h
+new file mode 100644
+index 0000000..64ab60c
+--- /dev/null
++++ b/protocol/pwar_audio_queue.h
+@@ -0,0 +1,52 @@
++/* PWAR: bounded stereo SPSC queue. GPL-3.0, like the surrounding project. */
++#ifndef PWAR_AUDIO_QUEUE_H
++#define PWAR_AUDIO_QUEUE_H
++#include <stdatomic.h>
++#include <stdint.h>
++#include <string.h>
++#define PWAR_AUDIO_QUEUE_FRAMES 32768u
++_Static_assert(ATOMIC_INT_LOCK_FREE == 2, "Audio cursors require lock-free unsigned atomics");
++_Static_assert(sizeof(unsigned)==4, "Audio cursor arithmetic requires 32-bit unsigned");
++typedef struct {
++    _Alignas(64) atomic_uint write_frame;
++    _Alignas(64) atomic_uint read_frame;
++    _Alignas(64) float samples[PWAR_AUDIO_QUEUE_FRAMES*2];
++} pwar_audio_queue;
++/* Initialize and pre-touch before publishing; never reset a live queue. */
++static inline void pwar_audio_queue_init(pwar_audio_queue *q) {
++    atomic_init(&q->write_frame,0); atomic_init(&q->read_frame,0);
++    memset(q->samples,0,sizeof(q->samples));
++}
++/* Consumer only. Not a third-thread snapshot or a reservation. */
++static inline unsigned pwar_audio_queue_available(pwar_audio_queue *q) {
++    unsigned read=atomic_load_explicit(&q->read_frame,memory_order_relaxed);
++    return atomic_load_explicit(&q->write_frame,memory_order_acquire)-read;
++}
++static inline unsigned pwar_audio_queue_write(pwar_audio_queue *q,const float *samples,unsigned frames) {
++    if(!samples || !frames || frames>PWAR_AUDIO_QUEUE_FRAMES) return 0;
++    unsigned write=atomic_load_explicit(&q->write_frame,memory_order_relaxed);
++    unsigned read=atomic_load_explicit(&q->read_frame,memory_order_acquire);
++    unsigned free_frames=PWAR_AUDIO_QUEUE_FRAMES-(write-read);
++    if(frames>free_frames) frames=free_frames;
++    unsigned offset=write&(PWAR_AUDIO_QUEUE_FRAMES-1);
++    unsigned first=PWAR_AUDIO_QUEUE_FRAMES-offset;
++    if(first>frames) first=frames;
++    memcpy(q->samples+offset*2,samples,first*2*sizeof(float));
++    memcpy(q->samples,samples+first*2,(frames-first)*2*sizeof(float));
++    atomic_store_explicit(&q->write_frame,write+frames,memory_order_release);
++    return frames;
++}
++static inline unsigned pwar_audio_queue_read(pwar_audio_queue *q,float *samples,unsigned frames) {
++    if(!samples || !frames || frames>PWAR_AUDIO_QUEUE_FRAMES) return 0;
++    unsigned read=atomic_load_explicit(&q->read_frame,memory_order_relaxed);
++    unsigned available=atomic_load_explicit(&q->write_frame,memory_order_acquire)-read;
++    if(frames>available) frames=available;
++    unsigned offset=read&(PWAR_AUDIO_QUEUE_FRAMES-1);
++    unsigned first=PWAR_AUDIO_QUEUE_FRAMES-offset;
++    if(first>frames) first=frames;
++    memcpy(samples,q->samples+offset*2,first*2*sizeof(float));
++    memcpy(samples+first*2,q->samples,(frames-first)*2*sizeof(float));
++    atomic_store_explicit(&q->read_frame,read+frames,memory_order_release);
++    return frames;
++}
++#endif
+diff --git a/linux/pwar_stream_relay.c b/linux/pwar_stream_relay.c
+new file mode 100644
+index 0000000..0274f7b
+--- /dev/null
++++ b/linux/pwar_stream_relay.c
+@@ -0,0 +1,250 @@
++/* PWAR stream backend: fixed wire format, PipeWire adapters, bounded RT queues.
++ * GPL-3.0, like the surrounding PWAR project.
++ */
++#define _GNU_SOURCE
++#include "libpwar.h"
++#include "../protocol/pwar_audio_queue.h"
++#include "../protocol/pwar_router.h"
++#include <pipewire/pipewire.h>
++#include <spa/param/audio/format-utils.h>
++#include <arpa/inet.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <math.h>
++#include <poll.h>
++#include <pthread.h>
++#include <signal.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++
++enum { WIRE_RATE=48000, WIRE_FRAMES=128, STRIDE=2*sizeof(float) };
++_Static_assert(ATOMIC_LLONG_LOCK_FREE==2,"Counters must be lock free");
++struct relay;
++struct endpoint { struct relay *relay; struct pw_stream *stream; atomic_bool valid; int capture; };
++struct relay {
++    struct pw_main_loop *loop;
++    struct endpoint capture, playback;
++    struct spa_source *reporter;
++    int socket_fd, passthrough, worker_started;
++    struct sockaddr_in peer;
++    pthread_t worker;
++    atomic_bool stop, failed;
++    atomic_ullong captured, played, transmitted, received, invalid, tx_dropped, rx_dropped, silenced;
++    pwar_audio_queue tx, rx;
++    pwar_router_t router;
++    unsigned primed; /* playback thread only */
++};
++
++static void capture_process(void *userdata) {
++    struct endpoint *e=userdata;
++    struct relay *r=e->relay;
++    struct pw_buffer *b=pw_stream_dequeue_buffer(e->stream);
++    if(!b) return;
++    if(!atomic_load_explicit(&e->valid,memory_order_acquire) || b->buffer->n_datas<1) goto done;
++    struct spa_data *d=&b->buffer->datas[0];
++    if(!d->data || !d->chunk || d->chunk->offset%STRIDE || d->chunk->offset>d->maxsize ||
++       d->chunk->size>d->maxsize-d->chunk->offset || d->chunk->size%STRIDE) {
++        atomic_fetch_add_explicit(&r->invalid,1,memory_order_relaxed); goto done;
++    }
++    unsigned frames=d->chunk->size/STRIDE;
++    unsigned written=pwar_audio_queue_write(&r->tx,
++        (float*)((unsigned char*)d->data+d->chunk->offset),frames);
++    atomic_fetch_add_explicit(&r->captured,frames,memory_order_relaxed);
++    atomic_fetch_add_explicit(&r->tx_dropped,frames-written,memory_order_relaxed);
++done:
++    pw_stream_queue_buffer(e->stream,b);
++}
++
++static void playback_process(void *userdata) {
++    struct endpoint *e=userdata;
++    struct relay *r=e->relay;
++    struct pw_buffer *b=pw_stream_dequeue_buffer(e->stream);
++    if(!b) return;
++    if(b->buffer->n_datas<1) goto done;
++    struct spa_data *d=&b->buffer->datas[0];
++    if(!d->data || !d->chunk) goto done;
++    unsigned frames=d->maxsize/STRIDE;
++    if(b->requested && b->requested<frames) frames=(unsigned)b->requested;
++    if(frames>PWAR_AUDIO_QUEUE_FRAMES/4) frames=PWAR_AUDIO_QUEUE_FRAMES/4;
++    unsigned read=0;
++    if(atomic_load_explicit(&e->valid,memory_order_acquire)) {
++        /* Two requested quanta cover one capture burst plus network service.
++         * Re-prime after a shortage instead of replaying stale samples. */
++        unsigned available=pwar_audio_queue_available(&r->rx);
++        if(!r->primed && available>=frames*2) r->primed=1;
++        if(r->primed) {
++            read=pwar_audio_queue_read(&r->rx,d->data,frames);
++            if(read<frames) r->primed=0;
++        }
++    }
++    memset((float*)d->data+read*2,0,(frames-read)*STRIDE);
++    d->chunk->offset=0; d->chunk->stride=STRIDE; d->chunk->size=frames*STRIDE;
++    atomic_fetch_add_explicit(&r->played,read,memory_order_relaxed);
++    atomic_fetch_add_explicit(&r->silenced,frames-read,memory_order_relaxed);
++done:
++    pw_stream_queue_buffer(e->stream,b);
++}
++
++static void format_changed(void *userdata,uint32_t id,const struct spa_pod *param) {
++    struct endpoint *e=userdata;
++    if(id!=SPA_PARAM_Format) return;
++    struct spa_audio_info_raw info={0};
++    int valid=param && spa_format_audio_raw_parse(param,&info)>=0 &&
++        info.format==SPA_AUDIO_FORMAT_F32 && info.channels==2 && info.rate==WIRE_RATE;
++    atomic_store_explicit(&e->valid,valid,memory_order_release);
++    if(param && !valid) {
++        fprintf(stderr,"Unsupported negotiated format: %u Hz, %u channels\n",info.rate,info.channels);
++        atomic_store(&e->relay->failed,1);
++    } else if(valid) {
++        fprintf(stderr,"%s negotiated: %u Hz stereo float32\n",e->capture?"capture":"playback",info.rate);
++    }
++}
++static void state_changed(void *userdata,enum pw_stream_state old,enum pw_stream_state state,const char *error) {
++    (void)old;
++    struct endpoint *e=userdata;
++    if(state==PW_STREAM_STATE_ERROR) {
++        fprintf(stderr,"PipeWire %s error: %s\n",e->capture?"capture":"playback",error?error:"unknown");
++        atomic_store(&e->relay->failed,1);
++    }
++}
++static const struct pw_stream_events capture_events={
++    PW_VERSION_STREAM_EVENTS,.state_changed=state_changed,.param_changed=format_changed,.process=capture_process};
++static const struct pw_stream_events playback_events={
++    PW_VERSION_STREAM_EVENTS,.state_changed=state_changed,.param_changed=format_changed,.process=playback_process};
++
++static void *network_worker(void *userdata) {
++    struct relay *r=userdata;
++    uint64_t seq=0;
++    float interleaved[PWAR_ROUTER_MAX_BUFFER_SIZE*2],planar[PWAR_ROUTER_MAX_BUFFER_SIZE*2];
++    while(!atomic_load_explicit(&r->stop,memory_order_acquire)) {
++        /* A bounded burst keeps receive and shutdown responsive under load. */
++        for(unsigned iteration=0;iteration<64 && pwar_audio_queue_available(&r->tx)>=WIRE_FRAMES;++iteration) {
++            if(pwar_audio_queue_read(&r->tx,interleaved,WIRE_FRAMES)!=WIRE_FRAMES) break;
++            if(r->passthrough) {
++                unsigned written=pwar_audio_queue_write(&r->rx,interleaved,WIRE_FRAMES);
++                atomic_fetch_add(&r->rx_dropped,WIRE_FRAMES-written);
++                continue;
++            }
++            pwar_packet_t packet;
++            memset(&packet,0,sizeof(packet));
++            packet.n_samples=WIRE_FRAMES; packet.seq=seq++; packet.num_packets=1;
++            struct timespec now;
++            clock_gettime(CLOCK_MONOTONIC,&now);
++            packet.timestamp=packet.seq_timestamp=(uint64_t)now.tv_sec*1000000000u+(uint64_t)now.tv_nsec;
++            for(unsigned f=0;f<WIRE_FRAMES;++f)
++                for(unsigned c=0;c<2;++c) packet.samples[c][f]=isfinite(interleaved[f*2+c])?interleaved[f*2+c]:0;
++            ssize_t sent=sendto(r->socket_fd,&packet,sizeof(packet),0,(struct sockaddr*)&r->peer,sizeof(r->peer));
++            if(sent==(ssize_t)sizeof(packet)) atomic_fetch_add(&r->transmitted,1);
++            else atomic_fetch_add(&r->tx_dropped,WIRE_FRAMES);
++        }
++        if(r->passthrough) { struct pollfd unused={.fd=-1}; poll(&unused,0,1); continue; }
++        struct pollfd fd={.fd=r->socket_fd,.events=POLLIN};
++        if(poll(&fd,1,1)<0 && errno!=EINTR) { atomic_store(&r->failed,1); break; }
++        for(unsigned iteration=0;iteration<64;++iteration) {
++            pwar_packet_t packet;
++            struct sockaddr_in sender;
++            struct iovec iov={.iov_base=&packet,.iov_len=sizeof(packet)};
++            struct msghdr msg={.msg_name=&sender,.msg_namelen=sizeof(sender),.msg_iov=&iov,.msg_iovlen=1};
++            ssize_t bytes=recvmsg(r->socket_fd,&msg,MSG_DONTWAIT);
++            if(bytes<0) { if(errno!=EAGAIN && errno!=EWOULDBLOCK && errno!=EINTR) atomic_store(&r->failed,1); break; }
++            if(sender.sin_addr.s_addr!=r->peer.sin_addr.s_addr || (msg.msg_flags&MSG_TRUNC)) {
++                atomic_fetch_add(&r->invalid,1); continue;
++            }
++            if(bytes==(ssize_t)sizeof(pwar_latency_info_t)) continue;
++            if(bytes!=(ssize_t)sizeof(packet)) { atomic_fetch_add(&r->invalid,1); continue; }
++            int frames=pwar_router_process_packet(&r->router,&packet,planar,PWAR_ROUTER_MAX_BUFFER_SIZE,2);
++            if(frames<0) { atomic_fetch_add(&r->invalid,1); continue; }
++            atomic_fetch_add(&r->received,1);
++            if(frames==0) continue;
++            for(int f=0;f<frames;++f)
++                for(unsigned c=0;c<2;++c) interleaved[f*2+c]=isfinite(planar[c*frames+f])?planar[c*frames+f]:0;
++            unsigned written=pwar_audio_queue_write(&r->rx,interleaved,(unsigned)frames);
++            atomic_fetch_add(&r->rx_dropped,(unsigned)frames-written);
++        }
++    }
++    return NULL;
++}
++static void quit_signal(void *userdata,int signal_number) {
++    (void)signal_number;
++    pw_main_loop_quit(((struct relay*)userdata)->loop);
++}
++static void report(void *userdata,uint64_t expirations) {
++    (void)expirations;
++    struct relay *r=userdata;
++    fprintf(stderr,"{\"captured_frames\":%llu,\"played_frames\":%llu,\"tx_packets\":%llu,\"rx_packets\":%llu,\"invalid_packets\":%llu,\"tx_dropped_frames\":%llu,\"rx_dropped_frames\":%llu,\"silenced_frames\":%llu}\n",
++        atomic_load(&r->captured),atomic_load(&r->played),atomic_load(&r->transmitted),atomic_load(&r->received),
++        atomic_load(&r->invalid),atomic_load(&r->tx_dropped),atomic_load(&r->rx_dropped),atomic_load(&r->silenced));
++    if(atomic_load(&r->failed)) pw_main_loop_quit(r->loop);
++}
++static int make_stream(struct relay *r,struct endpoint *e,int capture,unsigned requested_frames) {
++    e->relay=r; e->capture=capture; atomic_init(&e->valid,0);
++    struct pw_properties *props=pw_properties_new(
++        PW_KEY_NODE_NAME,capture?"pwar-send":"pwar-receive",
++        PW_KEY_NODE_DESCRIPTION,capture?"PWAR to Windows":"PWAR from Windows",
++        PW_KEY_MEDIA_TYPE,"Audio",PW_KEY_MEDIA_CATEGORY,capture?"Capture":"Playback",
++        PW_KEY_MEDIA_ROLE,"DSP","node.autoconnect","false","node.dont-reconnect","true",NULL);
++    if(!props) return -1;
++    pw_properties_setf(props,PW_KEY_NODE_LATENCY,"%u/%u",requested_frames,WIRE_RATE);
++    e->stream=pw_stream_new_simple(pw_main_loop_get_loop(r->loop),capture?"PWAR send":"PWAR receive",
++        props,capture?&capture_events:&playback_events,e);
++    if(!e->stream) return -1;
++    uint8_t buffer[1024];
++    struct spa_pod_builder builder=SPA_POD_BUILDER_INIT(buffer,sizeof(buffer));
++    struct spa_audio_info_raw format={.format=SPA_AUDIO_FORMAT_F32,.rate=WIRE_RATE,.channels=2,
++        .position={SPA_AUDIO_CHANNEL_FL,SPA_AUDIO_CHANNEL_FR}};
++    const struct spa_pod *params[]={spa_format_audio_raw_build(&builder,SPA_PARAM_EnumFormat,&format)};
++    return pw_stream_connect(e->stream,capture?PW_DIRECTION_INPUT:PW_DIRECTION_OUTPUT,PW_ID_ANY,
++        PW_STREAM_FLAG_MAP_BUFFERS|PW_STREAM_FLAG_RT_PROCESS,params,1);
++}
++
++int pwar_cli_run(const pwar_config_t *config) {
++    if(!config || config->buffer_size<1 || config->buffer_size>4096 || config->oneshot_mode) {
++        fprintf(stderr,"Stream backend requires asynchronous mode and a buffer request in 1..4096\n"); return 2;
++    }
++    struct relay *r=aligned_alloc(_Alignof(struct relay),sizeof(struct relay));
++    if(!r) return 1;
++    memset(r,0,sizeof(*r));
++    r->socket_fd=-1;
++    atomic_init(&r->stop,0); atomic_init(&r->failed,0);
++    atomic_init(&r->captured,0); atomic_init(&r->played,0); atomic_init(&r->transmitted,0); atomic_init(&r->received,0);
++    atomic_init(&r->invalid,0); atomic_init(&r->tx_dropped,0); atomic_init(&r->rx_dropped,0); atomic_init(&r->silenced,0);
++    pwar_audio_queue_init(&r->tx); pwar_audio_queue_init(&r->rx); pwar_router_init(&r->router,2);
++    r->peer.sin_family=AF_INET; r->peer.sin_port=htons(config->stream_port);
++    int result=1;
++    if(config->stream_port<1 || config->stream_port>65535 || inet_pton(AF_INET,config->stream_ip,&r->peer.sin_addr)!=1) goto done;
++    r->passthrough=config->passthrough_test;
++    r->socket_fd=socket(AF_INET,SOCK_DGRAM|SOCK_NONBLOCK|SOCK_CLOEXEC,0);
++    if(r->socket_fd<0) { perror("PWAR socket"); goto done; }
++    struct sockaddr_in local={.sin_family=AF_INET,.sin_port=htons(8321),.sin_addr={.s_addr=INADDR_ANY}};
++    if(bind(r->socket_fd,(struct sockaddr*)&local,sizeof(local))<0) { perror("PWAR receive port 8321"); goto done; }
++    pw_init(NULL,NULL);
++    r->loop=pw_main_loop_new(NULL);
++    if(!r->loop) goto deinit;
++    if(make_stream(r,&r->capture,1,(unsigned)config->buffer_size)<0 ||
++       make_stream(r,&r->playback,0,(unsigned)config->buffer_size)<0) goto streams;
++    if(pthread_create(&r->worker,NULL,network_worker,r)!=0) goto streams;
++    r->worker_started=1;
++    struct pw_loop *loop=pw_main_loop_get_loop(r->loop);
++    pw_loop_add_signal(loop,SIGINT,quit_signal,r); pw_loop_add_signal(loop,SIGTERM,quit_signal,r);
++    r->reporter=pw_loop_add_timer(loop,report,r);
++    if(!r->reporter) goto streams;
++    struct timespec interval={.tv_sec=1};
++    pw_loop_update_timer(loop,r->reporter,&interval,&interval,false);
++    pw_main_loop_run(r->loop);
++    result=atomic_load(&r->failed)?1:0;
++streams:
++    /* Stream teardown drains callbacks before queue ownership can end. */
++    if(r->capture.stream) pw_stream_destroy(r->capture.stream);
++    if(r->playback.stream) pw_stream_destroy(r->playback.stream);
++    atomic_store_explicit(&r->stop,1,memory_order_release);
++    if(r->worker_started) pthread_join(r->worker,NULL);
++    if(r->reporter) pw_loop_destroy_source(pw_main_loop_get_loop(r->loop),r->reporter);
++    pw_main_loop_destroy(r->loop);
++deinit:
++    pw_deinit();
++done:
++    if(r->socket_fd>=0) close(r->socket_fd);
++    free(r);
++    return result;
++}

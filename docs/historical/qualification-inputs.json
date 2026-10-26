@@ -1,0 +1,87 @@
+{
+  "upstreamArchiveSha256": "C67750EC44FBE58C524318AD6B45E84B260ACC9531C84D47935943FE9486B737",
+  "patches": [
+    {
+      "name": "0001-router-validate-buffer-bounds.patch",
+      "sha256": "029938C0E0E7B353D7DB79610AF43627E84BE35628DD49C898AF5B7834C5E279"
+    },
+    {
+      "name": "0002-asio-drain-listener-before-disposal.patch",
+      "sha256": "5F7D1A216E494567AF5DF2C05A96ADBB1AA81F58A7F83EB82BE71D4FE93488B4"
+    },
+    {
+      "name": "0003-asio-validate-datagrams-before-division.patch",
+      "sha256": "C14B590F33C0263C12BD44B350C3A0491426AE21244BE97397D920E4DDA7CA1F"
+    },
+    {
+      "name": "0004-asio-map-stereo-and-partial-channels.patch",
+      "sha256": "70A9F5330538307187F3A0DD47B9C9ED9BA9ED43106E5EE4A4C3CD532471DD82"
+    },
+    {
+      "name": "0005-report-listener-startup-failure.patch",
+      "sha256": "D5DAA7071A600650814CA3E7EC0E5B7DC5F646966D75CD60D067532E625324F3"
+    },
+    {
+      "name": "0006-disable-network-logging-by-default.patch",
+      "sha256": "D1CDFB7DF56A7FCD163047F3D0C231540E526D90590123ECA0555C1255B6C296"
+    },
+    {
+      "name": "0007-linux-guard-callback-input-and-quantum.patch",
+      "sha256": "4775060D9A3FB4F5244FB456D01AA6777838B3705FEE743131A1DF26FF5519FC"
+    }
+  ],
+  "sdkCommon": [
+    {
+      "name": "LICENSE.txt",
+      "sha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A"
+    },
+    {
+      "name": "asio.cpp",
+      "sha256": "4ECEE2BFAEBD8B0777DB96175D2B2EA8D0CD684DFAF9651480C44B0EBEC0FD61"
+    },
+    {
+      "name": "asio.h",
+      "sha256": "93D2F80D49B4AC9C963514E7C1307AB5111D8104246192233745BEB058534EA1"
+    },
+    {
+      "name": "asiodrvr.cpp",
+      "sha256": "47CF72E30CC04BC37FE609A467F833E85434F76B27B9CD19186358E4C50A6982"
+    },
+    {
+      "name": "asiodrvr.h",
+      "sha256": "CA2D65191D4914CB405B5C0B9E0AF932195B2734E8781CD4D8C94E6526FB8926"
+    },
+    {
+      "name": "asiosys.h",
+      "sha256": "F44A1ED0FD7C056FF047AEEBC4C05A8C185F0585A24D8DEBC55C70107777DBEF"
+    },
+    {
+      "name": "combase.cpp",
+      "sha256": "1F8EF8B79DE26C0435FF6544352AF36327643421491C353B059D86E0E344CD23"
+    },
+    {
+      "name": "combase.h",
+      "sha256": "29D1CCF49C332FDCDC7ABDDB32F5ADF9D475198EB0283B2CA19C450F35222B21"
+    },
+    {
+      "name": "debugmessage.cpp",
+      "sha256": "5F0D92D18695F4B7847AED3A2108BFB552FFA5E17DBD20440EAC0FBF32A04D62"
+    },
+    {
+      "name": "dllentry.cpp",
+      "sha256": "F7B813E0D6191F0C973409780C3305E6BA1E72E3E6E5CF8F5125E7DECDF589A2"
+    },
+    {
+      "name": "iasiodrv.h",
+      "sha256": "86AD4788452C74823653CF57D4BD557C48BB6542D7E6EB7FFF80102C705A066D"
+    },
+    {
+      "name": "register.cpp",
+      "sha256": "B1A09DDD5245F336EE9C1A0A38099CF146DAFF5212990A052245E14D5798E22D"
+    },
+    {
+      "name": "wxdebug.h",
+      "sha256": "B4C7293A3C7B8CDF6DD19CE7AE5766674D7F581522BD508DC6E6D6B0384785DA"
+    }
+  ]
+}

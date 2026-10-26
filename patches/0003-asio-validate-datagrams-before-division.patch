@@ -1,0 +1,23 @@
+diff --git a/windows/asio/pwarASIO.cpp b/windows/asio/pwarASIO.cpp
+index 2271a2f..e8ca85f 100644
+--- a/windows/asio/pwarASIO.cpp
++++ b/windows/asio/pwarASIO.cpp
+@@ -581,11 +581,16 @@ void pwarASIO::udp_packet_listener() {
+             if (receiveError == WSAETIMEDOUT || receiveError == WSAEMSGSIZE || receiveError == WSAECONNRESET) continue;
+             break;
+         }
+-        if (res == 0 && bytesReceived >= sizeof(pwar_packet_t)) {
++        if (res == 0 && bytesReceived == sizeof(pwar_packet_t)) {
+             pwar_packet_t pkt;
+             memcpy(&pkt, buffer, sizeof(pwar_packet_t));
+ 
+-            uint32_t chunk_size = pkt.n_samples;
++            const uint32_t chunk_size = pkt.n_samples;
++            // Validate before division, latency accounting and router mutation.
++            // A Windows ASIO callback consumes exactly one complete local block.
++            if (chunk_size < PWAR_PACKET_MIN_CHUNK_SIZE || chunk_size > PWAR_PACKET_MAX_CHUNK_SIZE ||
++                chunk_size > static_cast<uint32_t>(blockFrames) ||
++                static_cast<uint32_t>(blockFrames) % chunk_size != 0) continue;
+             pkt.num_packets =  blockFrames / chunk_size;
+             latency_manager_process_packet_client(&pkt);
+ 

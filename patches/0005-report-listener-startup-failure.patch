@@ -1,0 +1,107 @@
+--- a/windows/asio/pwarASIO.h
++++ b/windows/asio/pwarASIO.h
+@@ -10,6 +10,7 @@
+ 
+ #include "asiosys.h"
+ #include <thread>
++#include <future>
+ #include <atomic>
+ #include <string>
+ #include "../../protocol/pwar_packet.h"
+@@ -73,7 +74,7 @@ private:
+     void output(const pwar_packet_t& packet);
+     void bufferSwitchX();
+     void udp_packet_listener();
+-    void startUdpListener();
++    bool startUdpListener();
+     void stopUdpListener();
+     void initUdpSender();
+     void closeUdpSender();
+@@ -105,6 +106,7 @@ private:
+     char errorMessage[128]{};
+     uint64_t _timestamp = 0;
+     std::thread udpListenerThread;
++    std::promise<bool> udpListenerStartup;
+     std::atomic<bool> udpListenerRunning{false};
+     SOCKET udpSendSocket = INVALID_SOCKET;
+     bool udpWSAInitialized = false;
+--- a/windows/asio/pwarASIO.cpp
++++ b/windows/asio/pwarASIO.cpp
+@@ -168,10 +168,14 @@ ASIOError pwarASIO::start() {
+     toggle = 0;
+     started = true;
+     try {
+-        startUdpListener();
++        if (!startUdpListener()) {
++            started = false;
++            return ASE_HWMalfunction;
++        }
+     } catch (...) {
+-        udpListenerRunning = false;
++        stopUdpListener();
+         started = false;
++        strcpy(errorMessage, "Cannot start UDP listener thread");
+         return ASE_HWMalfunction;
+     }
+     return ASE_OK;
+@@ -542,12 +546,16 @@ void pwarASIO::udp_packet_listener() {
+ 
+     if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0) {
+         if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
++        strcpy(errorMessage, "Cannot initialize or bind UDP listener on port 8321");
++        udpListenerStartup.set_value(false);
+         return;
+     }
+     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+     if (sockfd == INVALID_SOCKET) {
+         WSACleanup();
+         if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
++        strcpy(errorMessage, "Cannot initialize or bind UDP listener on port 8321");
++        udpListenerStartup.set_value(false);
+         return;
+     }
+     // Periodically observe cancellation even when the Linux peer is silent.
+@@ -557,6 +565,8 @@ void pwarASIO::udp_packet_listener() {
+         closesocket(sockfd);
+         WSACleanup();
+         if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
++        strcpy(errorMessage, "Cannot initialize or bind UDP listener on port 8321");
++        udpListenerStartup.set_value(false);
+         return;
+     }
+     // Set SO_RCVBUF to minimal size for low latency
+@@ -574,8 +584,11 @@ void pwarASIO::udp_packet_listener() {
+         closesocket(sockfd);
+         WSACleanup();
+         if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
++        strcpy(errorMessage, "Cannot initialize or bind UDP listener on port 8321");
++        udpListenerStartup.set_value(false);
+         return;
+     }
++    udpListenerStartup.set_value(true);
+     pwar_packet_t output_packets[32];
+     uint32_t packets_to_send = 0;
+     while (udpListenerRunning) {
+@@ -674,11 +687,18 @@ void pwarASIO::udp_packet_listener() {
+     if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
+ }
+ 
+-void pwarASIO::startUdpListener() {
+-    if (!udpListenerRunning) {
+-        udpListenerRunning = true;
+-        udpListenerThread = std::thread(&pwarASIO::udp_packet_listener, this);
++bool pwarASIO::startUdpListener() {
++    udpListenerStartup = std::promise<bool>();
++    auto ready = udpListenerStartup.get_future();
++    udpListenerRunning = true;
++    udpListenerThread = std::thread(&pwarASIO::udp_packet_listener, this);
++    // Wait for bind on the host control thread, never in an audio callback.
++    if (!ready.get()) {
++        stopUdpListener();
++        return false;
+     }
++    errorMessage[0] = '\0';
++    return true;
+ }
+ 
+ void pwarASIO::stopUdpListener() {

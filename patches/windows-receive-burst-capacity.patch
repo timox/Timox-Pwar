@@ -1,0 +1,26 @@
+diff --git a/windows/asio/pwarASIO.cpp b/windows/asio/pwarASIO.cpp
+index 9d000bb..4e9340e 100644
+--- a/windows/asio/pwarASIO.cpp
++++ b/windows/asio/pwarASIO.cpp
+@@ -569,9 +569,18 @@ void pwarASIO::udp_packet_listener() {
+         udpListenerStartup.set_value(false);
+         return;
+     }
+-    // Set SO_RCVBUF to minimal size for low latency
+-    int rcvbuf = 1024; // 1 KB
+-    setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (const char*)&rcvbuf, sizeof(rcvbuf));
++    // Capacity is not a playout delay. One PipeWire quantum can arrive as a
++    // burst of many 1064-byte packets while the ASIO callback is running.
++    const int rcvbuf = 1024 * 1024;
++    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF,
++                   reinterpret_cast<const char*>(&rcvbuf), sizeof(rcvbuf)) == SOCKET_ERROR) {
++        closesocket(sockfd);
++        WSACleanup();
++        if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
++        strcpy(errorMessage, "Cannot configure UDP receive capacity");
++        udpListenerStartup.set_value(false);
++        return;
++    }
+     // Disable UDP connection reset behavior
+     DWORD bytesReturned = 0;
+     BOOL bNewBehavior = FALSE;

@@ -1,0 +1,154 @@
+diff --git a/linux/pwar_stream_relay.c b/linux/pwar_stream_relay.c
+index 70716f0..b7392aa 100644
+--- a/linux/pwar_stream_relay.c
++++ b/linux/pwar_stream_relay.c
+@@ -36,12 +36,37 @@ struct relay {
+     pthread_t worker;
+     atomic_bool stop, failed;
+     atomic_ullong captured, played, transmitted, received, invalid, tx_dropped, rx_dropped, silenced;
++    atomic_ullong capture_callbacks, capture_quantum_frames, capture_quantum_min, capture_quantum_max;
++    atomic_ullong playback_callbacks, playback_quantum_frames, playback_quantum_min, playback_quantum_max;
++    atomic_ullong tx_queue_high_water, rx_queue_high_water, tx_queue_overflow_events, rx_queue_overflow_events;
+     pwar_audio_queue tx, rx;
+     pwar_router_t router;
+ };
+ 
++static void observe_quantum(atomic_ullong *total,atomic_ullong *minimum,
++                            atomic_ullong *maximum,uint64_t frames) {
++    atomic_fetch_add_explicit(total,frames,memory_order_relaxed);
++    uint64_t old=atomic_load_explicit(minimum,memory_order_relaxed);
++    while((old==0 || frames<old) &&
++          !atomic_compare_exchange_weak_explicit(minimum,&old,frames,
++              memory_order_relaxed,memory_order_relaxed)) {}
++    old=atomic_load_explicit(maximum,memory_order_relaxed);
++    while(frames>old &&
++          !atomic_compare_exchange_weak_explicit(maximum,&old,frames,
++              memory_order_relaxed,memory_order_relaxed)) {}
++}
++
++static void observe_high_water(atomic_ullong *high_water,uint32_t frames) {
++    uint64_t old=atomic_load_explicit(high_water,memory_order_relaxed);
++    while(frames>old &&
++          !atomic_compare_exchange_weak_explicit(high_water,&old,frames,
++              memory_order_relaxed,memory_order_relaxed)) {}
++}
++
+ static void mark_capture_loss(struct relay *r,const struct pw_buffer *b) {
+     uint64_t requested=b->requested;
++    observe_quantum(&r->capture_quantum_frames,&r->capture_quantum_min,
++                    &r->capture_quantum_max,requested);
+     atomic_fetch_add_explicit(&r->invalid,1,memory_order_relaxed);
+     if(requested>UINT32_MAX) return;
+     pwar_audio_queue_skip_write(&r->tx,(uint32_t)requested);
+@@ -54,6 +79,7 @@ static void capture_process(void *userdata) {
+     struct relay *r=e->relay;
+     struct pw_buffer *b=pw_stream_dequeue_buffer(e->stream);
+     if(!b) return;
++    atomic_fetch_add_explicit(&r->capture_callbacks,1,memory_order_relaxed);
+     if(b->buffer->n_datas<1) { mark_capture_loss(r,b); goto done; }
+     struct spa_data *d=&b->buffer->datas[0];
+     if(!d->chunk || ((uintptr_t)d->data%STRIDE)!=0 || d->chunk->offset%STRIDE || d->chunk->offset>d->maxsize ||
+@@ -61,6 +87,8 @@ static void capture_process(void *userdata) {
+         mark_capture_loss(r,b); goto done;
+     }
+     unsigned frames=d->chunk->size/STRIDE;
++    observe_quantum(&r->capture_quantum_frames,&r->capture_quantum_min,
++                    &r->capture_quantum_max,frames);
+     if(!atomic_load_explicit(&e->valid,memory_order_acquire) || !d->data ||
+        frames>PWAR_AUDIO_QUEUE_FRAMES) {
+         pwar_audio_queue_skip_write(&r->tx,frames);
+@@ -70,11 +98,13 @@ static void capture_process(void *userdata) {
+     }
+     unsigned written=pwar_audio_queue_write(&r->tx,
+         (float*)((unsigned char*)d->data+d->chunk->offset),frames);
++    observe_high_water(&r->tx_queue_high_water,pwar_audio_queue_available(&r->tx));
+     atomic_fetch_add_explicit(&r->captured,frames,memory_order_relaxed);
+     if(written!=frames) {
+         /* Whole callback span is lost; preserve its position for the worker. */
+         pwar_audio_queue_skip_write(&r->tx,frames);
+         atomic_fetch_add_explicit(&r->tx_dropped,frames,memory_order_relaxed);
++        atomic_fetch_add_explicit(&r->tx_queue_overflow_events,1,memory_order_relaxed);
+     }
+ done:
+     pw_stream_queue_buffer(e->stream,b);
+@@ -85,6 +115,7 @@ static void playback_process(void *userdata) {
+     struct relay *r=e->relay;
+     struct pw_buffer *b=pw_stream_dequeue_buffer(e->stream);
+     if(!b) return;
++    atomic_fetch_add_explicit(&r->playback_callbacks,1,memory_order_relaxed);
+     if(b->buffer->n_datas<1) {
+         if(b->requested<=UINT32_MAX) pwar_audio_queue_skip_read(&r->rx,(uint32_t)b->requested);
+         atomic_fetch_add_explicit(&r->invalid,1,memory_order_relaxed);
+@@ -93,6 +124,8 @@ static void playback_process(void *userdata) {
+     struct spa_data *d=&b->buffer->datas[0];
+     uint64_t requested=b->requested;
+     if(!requested) requested=d->maxsize/STRIDE;
++    observe_quantum(&r->playback_quantum_frames,&r->playback_quantum_min,
++                    &r->playback_quantum_max,requested);
+     if(!d->data || !d->chunk || ((uintptr_t)d->data%STRIDE)!=0 || d->chunk->offset%STRIDE ||
+        d->chunk->offset>d->maxsize) {
+         atomic_fetch_add_explicit(&r->invalid,1,memory_order_relaxed);
+@@ -115,6 +148,7 @@ static void playback_process(void *userdata) {
+         const uint64_t synthesized_before=r->rx.synthesized_frames;
+         if(atomic_load_explicit(&e->valid,memory_order_acquire) && frames)
+             read=pwar_audio_queue_read(&r->rx,output,frames);
++        observe_high_water(&r->rx_queue_high_water,pwar_audio_queue_available(&r->rx));
+         if(read<frames) {
+             memset(output+(size_t)read*2,0,(size_t)(frames-read)*STRIDE);
+             /* Advance by the host clock quantum; late queued frames are stale. */
+@@ -218,9 +252,11 @@ static void *network_worker(void *userdata) {
+             for(int f=0;f<frames;++f)
+                 for(unsigned c=0;c<2;++c) interleaved[f*2+c]=isfinite(planar[c*frames+f])?planar[c*frames+f]:0;
+             unsigned written=pwar_audio_queue_write(&r->rx,interleaved,(unsigned)frames);
++            observe_high_water(&r->rx_queue_high_water,pwar_audio_queue_available(&r->rx));
+             if(written!=(unsigned)frames) {
+                 pwar_audio_queue_skip_write(&r->rx,(unsigned)frames);
+                 atomic_fetch_add(&r->rx_dropped,(unsigned)frames);
++                atomic_fetch_add(&r->rx_queue_overflow_events,1);
+             }
+         }
+     }
+@@ -233,9 +269,28 @@ static void quit_signal(void *userdata,int signal_number) {
+ static void report(void *userdata,uint64_t expirations) {
+     (void)expirations;
+     struct relay *r=userdata;
+-    fprintf(stderr,"{\"captured_frames\":%llu,\"played_frames\":%llu,\"tx_packets\":%llu,\"rx_packets\":%llu,\"invalid_packets\":%llu,\"tx_dropped_frames\":%llu,\"rx_dropped_frames\":%llu,\"silenced_frames\":%llu}\n",
++    const uint64_t capture_callbacks=atomic_exchange(&r->capture_callbacks,0);
++    const uint64_t capture_quantum_frames=atomic_exchange(&r->capture_quantum_frames,0);
++    const uint64_t capture_quantum_min=atomic_exchange(&r->capture_quantum_min,0);
++    const uint64_t capture_quantum_max=atomic_exchange(&r->capture_quantum_max,0);
++    const uint64_t playback_callbacks=atomic_exchange(&r->playback_callbacks,0);
++    const uint64_t playback_quantum_frames=atomic_exchange(&r->playback_quantum_frames,0);
++    const uint64_t playback_quantum_min=atomic_exchange(&r->playback_quantum_min,0);
++    const uint64_t playback_quantum_max=atomic_exchange(&r->playback_quantum_max,0);
++    const uint64_t tx_queue_high_water=atomic_exchange(&r->tx_queue_high_water,0);
++    const uint64_t rx_queue_high_water=atomic_exchange(&r->rx_queue_high_water,0);
++    const uint64_t tx_queue_overflow_events=atomic_exchange(&r->tx_queue_overflow_events,0);
++    const uint64_t rx_queue_overflow_events=atomic_exchange(&r->rx_queue_overflow_events,0);
++    fprintf(stderr,"{\"captured_frames\":%llu,\"played_frames\":%llu,\"tx_packets\":%llu,\"rx_packets\":%llu,\"invalid_packets\":%llu,\"tx_dropped_frames\":%llu,\"rx_dropped_frames\":%llu,\"silenced_frames\":%llu,\"tx_queue_frames\":%u,\"tx_queue_high_water_frames_interval\":%llu,\"tx_queue_overflow_events_interval\":%llu,\"rx_queue_frames\":%u,\"rx_queue_high_water_frames_interval\":%llu,\"rx_queue_overflow_events_interval\":%llu,\"capture_callbacks_interval\":%llu,\"capture_quantum_frames_interval\":%llu,\"capture_quantum_min_frames_interval\":%llu,\"capture_quantum_max_frames_interval\":%llu,\"playback_callbacks_interval\":%llu,\"playback_quantum_frames_interval\":%llu,\"playback_quantum_min_frames_interval\":%llu,\"playback_quantum_max_frames_interval\":%llu}\n",
+         atomic_load(&r->captured),atomic_load(&r->played),atomic_load(&r->transmitted),atomic_load(&r->received),
+-        atomic_load(&r->invalid),atomic_load(&r->tx_dropped),atomic_load(&r->rx_dropped),atomic_load(&r->silenced));
++        atomic_load(&r->invalid),atomic_load(&r->tx_dropped),atomic_load(&r->rx_dropped),atomic_load(&r->silenced),
++        pwar_audio_queue_available(&r->tx),(unsigned long long)tx_queue_high_water,
++        (unsigned long long)tx_queue_overflow_events,pwar_audio_queue_available(&r->rx),
++        (unsigned long long)rx_queue_high_water,(unsigned long long)rx_queue_overflow_events,
++        (unsigned long long)capture_callbacks,(unsigned long long)capture_quantum_frames,
++        (unsigned long long)capture_quantum_min,(unsigned long long)capture_quantum_max,
++        (unsigned long long)playback_callbacks,(unsigned long long)playback_quantum_frames,
++        (unsigned long long)playback_quantum_min,(unsigned long long)playback_quantum_max);
+     if(atomic_load(&r->failed)) pw_main_loop_quit(r->loop);
+ }
+ static int make_stream(struct relay *r,struct endpoint *e,int capture,unsigned requested_frames) {
+@@ -270,6 +325,12 @@ int pwar_cli_run(const pwar_config_t *config) {
+     atomic_init(&r->stop,0); atomic_init(&r->failed,0);
+     atomic_init(&r->captured,0); atomic_init(&r->played,0); atomic_init(&r->transmitted,0); atomic_init(&r->received,0);
+     atomic_init(&r->invalid,0); atomic_init(&r->tx_dropped,0); atomic_init(&r->rx_dropped,0); atomic_init(&r->silenced,0);
++    atomic_init(&r->capture_callbacks,0); atomic_init(&r->capture_quantum_frames,0);
++    atomic_init(&r->capture_quantum_min,0); atomic_init(&r->capture_quantum_max,0);
++    atomic_init(&r->playback_callbacks,0); atomic_init(&r->playback_quantum_frames,0);
++    atomic_init(&r->playback_quantum_min,0); atomic_init(&r->playback_quantum_max,0);
++    atomic_init(&r->tx_queue_high_water,0); atomic_init(&r->rx_queue_high_water,0);
++    atomic_init(&r->tx_queue_overflow_events,0); atomic_init(&r->rx_queue_overflow_events,0);
+     pwar_audio_queue_init(&r->tx); pwar_audio_queue_init(&r->rx); pwar_router_init(&r->router,2);
+     r->peer.sin_family=AF_INET; r->peer.sin_port=htons(config->stream_port);
+     int result=1;

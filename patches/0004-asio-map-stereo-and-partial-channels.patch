@@ -1,0 +1,119 @@
+diff --git a/windows/asio/pwarASIO.cpp b/windows/asio/pwarASIO.cpp
+index e8ca85f..d6e8b6c 100644
+--- a/windows/asio/pwarASIO.cpp
++++ b/windows/asio/pwarASIO.cpp
+@@ -315,6 +315,17 @@ ASIOError pwarASIO::createBuffers(ASIOBufferInfo* bufferInfos, long numChannels,
+         strcpy(errorMessage, "Invalid number of channels");
+         return ASE_InvalidParameter;
+     }
++    // Validate the entire selection before indexing maps or allocating slots.
++    bool seenInputs[kNumInputs]{};
++    bool seenOutputs[kNumOutputs]{};
++    for (long slot = 0; slot < numChannels; ++slot) {
++        const auto& selected = bufferInfos[slot];
++        const long count = selected.isInput ? kNumInputs : kNumOutputs;
++        if (selected.channelNum < 0 || selected.channelNum >= count) return ASE_InvalidParameter;
++        bool* seen = selected.isInput ? seenInputs : seenOutputs;
++        if (seen[selected.channelNum]) return ASE_InvalidParameter;
++        seen[selected.channelNum] = true;
++    }
+     
+     ASIOBufferInfo* info = bufferInfos;
+     bool notEnoughMem = false;
+@@ -345,7 +356,7 @@ ASIOError pwarASIO::createBuffers(ASIOBufferInfo* bufferInfos, long numChannels,
+             if (info->channelNum < 0 || info->channelNum >= kNumInputs)
+                 goto error;
+             inMap[activeInputs] = info->channelNum;
+-            inputBuffers[activeInputs] = new float[blockFrames * 2];
++            inputBuffers[activeInputs] = new float[blockFrames * 2]{};
+             if (inputBuffers[activeInputs]) {
+                 info->buffers[0] = inputBuffers[activeInputs];
+                 info->buffers[1] = inputBuffers[activeInputs] + blockFrames;
+@@ -363,7 +374,7 @@ error:
+             if (info->channelNum < 0 || info->channelNum >= kNumOutputs)
+                 goto error;
+             outMap[activeOutputs] = info->channelNum;
+-            outputBuffers[activeOutputs] = new float[blockFrames * 2];
++            outputBuffers[activeOutputs] = new float[blockFrames * 2]{};
+             if (outputBuffers[activeOutputs]) {
+                 info->buffers[0] = outputBuffers[activeOutputs];
+                 info->buffers[1] = outputBuffers[activeOutputs] + blockFrames;
+@@ -607,8 +618,7 @@ void pwarASIO::udp_packet_listener() {
+                 for (long i = 0; i < activeInputs; ++i) {
+                     float* dest = inputBuffers[i] + (toggle ? blockFrames : 0);
+ 
+-                    // Copy the first input channel..
+-                    memcpy(dest, input_buffers, to_copy * sizeof(float));
++                    memcpy(dest, input_buffers + inMap[i] * blockFrames, to_copy * sizeof(float));
+ 
+                     // Zero out the rest
+                     for (size_t j = to_copy; j < blockFrames; ++j)
+@@ -624,11 +634,13 @@ void pwarASIO::udp_packet_listener() {
+ 
+                 latency_manager_start_audio_cbk_end();
+ 
+-                float* outputSamplesCh1 = outputBuffers[0] + (toggle ? blockFrames : 0);
+-                float* outputSamplesCh2 = outputBuffers[1] + (toggle ? blockFrames : 0);
+-
+-                memcpy(output_buffers, outputSamplesCh1, blockFrames * sizeof(float));
+-                memcpy(output_buffers + blockFrames, outputSamplesCh2, blockFrames * sizeof(float));
++                // Wire channels keep their identity regardless of ASIO slot
++                // order. Unopened channels produce silence, including capture-only.
++                memset(output_buffers, 0, PWAR_MAX_CHANNELS * blockFrames * sizeof(float));
++                for (long slot = 0; slot < activeOutputs; ++slot) {
++                    const float* source = outputBuffers[slot] + (toggle ? blockFrames : 0);
++                    memcpy(output_buffers + outMap[slot] * blockFrames, source, blockFrames * sizeof(float));
++                }
+ 
+                 // Send the result
+                 pwar_router_send_buffer(&router, chunk_size, output_buffers, samples_ready, PWAR_MAX_CHANNELS, output_packets, 32, &packets_to_send);
+@@ -696,13 +708,18 @@ void pwarASIO::parseConfigFile() {
+             if (key == "udp_send_ip") {
+                 udpSendIp = value;
+                 pwarASIOLog::Send("Read ip from config");
++            } else if (key == "udp_send_port") {
++                std::istringstream port(value);
++                unsigned parsed = 0;
++                char trailing = 0;
++                if ((port >> parsed) && !(port >> trailing) && parsed > 0 && parsed <= 65535)
++                    udpSendPort = static_cast<unsigned short>(parsed);
+             }
+         }
+     }
+ }
+ 
+ void pwarASIO::initUdpSender() {
+-    constexpr int udp_port = 8321;
+     if (!udpWSAInitialized) {
+         WSADATA wsaData;
+         if (WSAStartup(MAKEWORD(2,2), &wsaData) == 0) {
+@@ -717,7 +734,7 @@ void pwarASIO::initUdpSender() {
+         if (udpSendSocket != INVALID_SOCKET) {
+             memset(&udpSendAddr, 0, sizeof(udpSendAddr));
+             udpSendAddr.sin_family = AF_INET;
+-            udpSendAddr.sin_port = htons(udp_port);
++            udpSendAddr.sin_port = htons(udpSendPort);
+             inet_pton(AF_INET, udpSendIp.c_str(), &udpSendAddr.sin_addr);
+             // Set SO_SNDBUF to minimal size for low latency
+             int sndbuf = 1024; // 1 KB
+diff --git a/windows/asio/pwarASIO.h b/windows/asio/pwarASIO.h
+index 5fcfa07..d3d4289 100644
+--- a/windows/asio/pwarASIO.h
++++ b/windows/asio/pwarASIO.h
+@@ -28,7 +28,7 @@ constexpr int kMinBlockFrames = 64;
+ constexpr int kMaxBlockFrames = 2048;
+ constexpr int kDefaultBlockFrames = 128;
+ constexpr int kBlockFramesGranularity = 64;
+-constexpr int kNumInputs = 1;
++constexpr int kNumInputs = 2;
+ constexpr int kNumOutputs = 2;
+ 
+ class pwarASIO : public IASIO, public CUnknown {
+@@ -110,6 +110,7 @@ private:
+     bool udpWSAInitialized = false;
+     struct sockaddr_in udpSendAddr;
+     std::string udpSendIp = "192.168.66.2";
++    unsigned short udpSendPort = 8321;
+ };
+ 
+ #endif // __PWAR_ASIO_H__

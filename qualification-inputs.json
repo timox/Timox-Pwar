@@ -1,0 +1,82 @@
+{
+  "upstreamCommit": "ed5b07c44c7635d006422d646d56368600504b3f",
+  "upstreamArchiveSha256": "C67750EC44FBE58C524318AD6B45E84B260ACC9531C84D47935943FE9486B737",
+  "upstreamArchiveAvailable": false,
+  "canonical": "Direct source snapshot; not dependent on replay during build",
+  "patches": [
+    {
+      "sha256": "029938C0E0E7B353D7DB79610AF43627E84BE35628DD49C898AF5B7834C5E279",
+      "name": "0001-router-validate-buffer-bounds.patch"
+    },
+    {
+      "sha256": "5F7D1A216E494567AF5DF2C05A96ADBB1AA81F58A7F83EB82BE71D4FE93488B4",
+      "name": "0002-asio-drain-listener-before-disposal.patch"
+    },
+    {
+      "sha256": "C14B590F33C0263C12BD44B350C3A0491426AE21244BE97397D920E4DDA7CA1F",
+      "name": "0003-asio-validate-datagrams-before-division.patch"
+    },
+    {
+      "sha256": "70A9F5330538307187F3A0DD47B9C9ED9BA9ED43106E5EE4A4C3CD532471DD82",
+      "name": "0004-asio-map-stereo-and-partial-channels.patch"
+    },
+    {
+      "sha256": "D5DAA7071A600650814CA3E7EC0E5B7DC5F646966D75CD60D067532E625324F3",
+      "name": "0005-report-listener-startup-failure.patch"
+    },
+    {
+      "sha256": "D1CDFB7DF56A7FCD163047F3D0C231540E526D90590123ECA0555C1255B6C296",
+      "name": "0006-disable-network-logging-by-default.patch"
+    },
+    {
+      "sha256": "4775060D9A3FB4F5244FB456D01AA6777838B3705FEE743131A1DF26FF5519FC",
+      "name": "0007-linux-guard-callback-input-and-quantum.patch"
+    },
+    {
+      "sha256": "BBBC96517634463D3BE7E6198F31B1D3B8CD7BDE674A2BC767832E4A53D0E01C",
+      "name": "0008-router-preserve-fragment-integrity.patch"
+    },
+    {
+      "sha256": "5ECB89193C7454F2437FCB2445CD5234C5B5B2BA46262C1B433E2584EB8EABF6",
+      "name": "0009-preserve-frame-cursor-and-response-sequence.patch"
+    },
+    {
+      "sha256": "DC925BF6D6BB3DFA8B6A1E8A4130AEED0722A06F754A1ABA97A77A25296E3EA4",
+      "name": "0010-cli-validate-before-startup.patch"
+    },
+    {
+      "sha256": "28D737C13C93FC6A8FE98E3DE93EB9A9445252B98434F60896EC59AAB3F7D269",
+      "name": "0011-linux-frame-queue.patch"
+    },
+    {
+      "sha256": "5684B1FAE7DB220ACE9D498175FF908DEBC50DD078387AFAE4878EADC5C6FA05",
+      "name": "0012-linux-queue-network-worker.patch"
+    },
+    {
+      "sha256": "2350BE779C64326FF4F25B6F04485AC2F8C7357B8D3066A7A882D9A75A3F7360",
+      "name": "0013-distinguish-stream-chunks-from-grouped-fragments.patch"
+    },
+    {
+      "sha256": "B17613CA5D764544D8DC7A8112D6394891A583786A467120589DF6410B99385C",
+      "name": "windows-receive-burst-capacity.patch"
+    },
+    {
+      "sha256": "F61056D619A6A57CFFFC2CE7F3DF076929D07211A055EB64A74CD7C5D46EB26E",
+      "name": "experimental-pipewire-stream-backend.patch"
+    },
+    {
+      "sha256": "2E83DE7BC11FDA4B55648D71950890A2AE1F21E082AD7351CF18F07295D85018",
+      "name": "0014-linux-account-synthesized-silence.patch"
+    },
+    {
+      "sha256": "4C1070AB88D893F7ABBFFF1A5CA05ADD32CC5AA2D67C63F87E10E116FB792CF5",
+      "name": "0015-cli-describe-current-buffer-behavior.patch"
+    },
+    {
+      "sha256": "A49E2E4F29FD0FFC89CDC5FF19065FD2247887A2C5C2ED12FC77E6EFDB5796E9",
+      "name": "0016-consolidated-stream-snapshot.patch"
+    }
+  ],
+  "excludedAlternative": "measured-stream-backend-20261025.patch is a separate older branch, not applied with experimental backend",
+  "reconciliation": "Reverse/replay from locally derived base; normalized-text equality checked against canonical source; upstream archive replay not verified"
+}

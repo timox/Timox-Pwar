@@ -1,0 +1,65 @@
+diff --git a/protocol/pwar_audio_queue.h b/protocol/pwar_audio_queue.h
+index cf1f020..bc464d9 100644
+--- a/protocol/pwar_audio_queue.h
++++ b/protocol/pwar_audio_queue.h
+@@ -27,6 +27,8 @@ typedef struct pwar_audio_queue {
+     atomic_uint skipped_frames;
+     uint32_t producer_timeline;
+     uint32_t consumer_timeline;
++    /* Consumer-owned count; read only on the same thread as queue_read. */
++    uint64_t synthesized_frames;
+ } pwar_audio_queue;
+ 
+ void pwar_audio_queue_init(pwar_audio_queue *queue);
+diff --git a/protocol/pwar_audio_queue.c b/protocol/pwar_audio_queue.c
+index 9d3d0bd..abdb5be 100644
+--- a/protocol/pwar_audio_queue.c
++++ b/protocol/pwar_audio_queue.c
+@@ -21,6 +21,7 @@ void pwar_audio_queue_init(pwar_audio_queue *queue) {
+     atomic_init(&queue->skipped_frames, 0u);
+     queue->producer_timeline = 0u;
+     queue->consumer_timeline = 0u;
++    queue->synthesized_frames = 0u;
+ }
+ 
+ uint32_t pwar_audio_queue_available(const pwar_audio_queue *queue) {
+@@ -106,6 +107,7 @@ uint32_t pwar_audio_queue_read(pwar_audio_queue *queue,
+                 memset(interleaved_stereo + produced * PWAR_AUDIO_QUEUE_CHANNELS, 0,
+                        gap * PWAR_AUDIO_QUEUE_CHANNELS * sizeof(float));
+                 queue->consumer_timeline += gap;
++                queue->synthesized_frames += gap;
+                 produced += gap;
+                 continue;
+             }
+@@ -144,6 +146,7 @@ uint32_t pwar_audio_queue_read(pwar_audio_queue *queue,
+         memset(interleaved_stereo + produced * PWAR_AUDIO_QUEUE_CHANNELS, 0,
+                count * PWAR_AUDIO_QUEUE_CHANNELS * sizeof(float));
+         queue->consumer_timeline += count;
++        queue->synthesized_frames += count;
+         produced += count;
+     }
+ 
+diff --git a/linux/pwar_stream_relay.c b/linux/pwar_stream_relay.c
+index 961027b..70716f0 100644
+--- a/linux/pwar_stream_relay.c
++++ b/linux/pwar_stream_relay.c
+@@ -112,6 +112,7 @@ static void playback_process(void *userdata) {
+         atomic_fetch_add_explicit(&r->invalid,1,memory_order_relaxed);
+     } else {
+         uint32_t read=0;
++        const uint64_t synthesized_before=r->rx.synthesized_frames;
+         if(atomic_load_explicit(&e->valid,memory_order_acquire) && frames)
+             read=pwar_audio_queue_read(&r->rx,output,frames);
+         if(read<frames) {
+@@ -122,8 +123,9 @@ static void playback_process(void *userdata) {
+             pwar_audio_queue_skip_read(&r->rx,(uint32_t)(requested-frames));
+         }
+         d->chunk->offset=offset; d->chunk->stride=STRIDE; d->chunk->size=frames*STRIDE;
+-        atomic_fetch_add_explicit(&r->played,read,memory_order_relaxed);
+-        atomic_fetch_add_explicit(&r->silenced,frames-read,memory_order_relaxed);
++        const uint32_t synthesized=(uint32_t)(r->rx.synthesized_frames-synthesized_before);
++        atomic_fetch_add_explicit(&r->played,read-synthesized,memory_order_relaxed);
++        atomic_fetch_add_explicit(&r->silenced,frames-read+synthesized,memory_order_relaxed);
+     }
+ done:
+     pw_stream_queue_buffer(e->stream,b);

@@ -1,0 +1,25 @@
+--- a/windows/asio/pwarASIOLog.cpp
++++ b/windows/asio/pwarASIOLog.cpp
+@@ -6,6 +6,16 @@
+  */
+ 
+ #include "pwarASIOLog.h"
++
++// Network diagnostics are opt-in for developer builds. The default audio
++// path must not allocate, lock or send logs to a hard-coded network peer.
++#ifndef PWAR_ENABLE_UDP_LOGGING
++pwarASIOLog::pwarASIOLog(const char*, int) {}
++void pwarASIOLog::Init() {}
++void pwarASIOLog::Shutdown() {}
++void pwarASIOLog::EnsureInit() {}
++void pwarASIOLog::Send(const char*) {}
++#else
+ #include <winsock2.h>
+ #include <ws2tcpip.h>
+ #include <mutex>
+@@ -63,3 +73,5 @@ void pwarASIOLog::Send(const char* msg) {
+     if (out.empty() || out.back() != '\n') out += "\r\n";
+     sendto(sock, out.c_str(), (int)out.size(), 0, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+ }
++
++#endif // PWAR_ENABLE_UDP_LOGGING

@@ -1,0 +1,904 @@
+{
+  "kind": "standalone source extraction",
+  "upstreamCommit": "ed5b07c44c7635d006422d646d56368600504b3f",
+  "sourceCommit": "3bcc05f5fed34ea8404e478ef34bb230a2efe39c",
+  "sourceTree": "dirty local snapshot, not represented by sourceCommit alone",
+  "files": [
+    {
+      "source": "patches/pwar/client/asio_client_tests.cpp",
+      "target": "client/asio_client_tests.cpp",
+      "sourceSha256": "A165AC028B5ACF3405A780DA8DCED93D66DF68EFBA7835D10C1B8CAE94536E23",
+      "sha256": "A165AC028B5ACF3405A780DA8DCED93D66DF68EFBA7835D10C1B8CAE94536E23",
+      "status": "copied",
+      "targetSha256": "A165AC028B5ACF3405A780DA8DCED93D66DF68EFBA7835D10C1B8CAE94536E23"
+    },
+    {
+      "source": "patches/pwar/client/asio_client.cpp",
+      "target": "client/asio_client.cpp",
+      "sourceSha256": "AF4D07169C0B4FEE5F04CE19D031999BC258ECA268A44F8B19883B685808CC65",
+      "sha256": "AF4D07169C0B4FEE5F04CE19D031999BC258ECA268A44F8B19883B685808CC65",
+      "status": "copied",
+      "targetSha256": "AF4D07169C0B4FEE5F04CE19D031999BC258ECA268A44F8B19883B685808CC65"
+    },
+    {
+      "source": "patches/pwar/client/control_protocol_tests.cpp",
+      "target": "client/control_protocol_tests.cpp",
+      "sourceSha256": "22EE02E4939B1A38017A0F3EE9883AF091C64CC58F82F861892E676E7337D081",
+      "sha256": "22EE02E4939B1A38017A0F3EE9883AF091C64CC58F82F861892E676E7337D081",
+      "status": "copied",
+      "targetSha256": "22EE02E4939B1A38017A0F3EE9883AF091C64CC58F82F861892E676E7337D081"
+    },
+    {
+      "source": "patches/pwar/client/control_protocol.h",
+      "target": "client/control_protocol.h",
+      "sourceSha256": "882A682CF2F0A5A9FC1DAA866E0639099B66A65323BD896E3A77E9970E47B7FF",
+      "sha256": "882A682CF2F0A5A9FC1DAA866E0639099B66A65323BD896E3A77E9970E47B7FF",
+      "status": "copied",
+      "targetSha256": "882A682CF2F0A5A9FC1DAA866E0639099B66A65323BD896E3A77E9970E47B7FF"
+    },
+    {
+      "source": "patches/pwar/client/CONTROL.md",
+      "target": "client/CONTROL.md",
+      "sourceSha256": "3D1D156D8DE42C7A2000B7165DA67B41FD4B2571C9B8ABCAF28DB70B0FB2AFE9",
+      "sha256": "3D1D156D8DE42C7A2000B7165DA67B41FD4B2571C9B8ABCAF28DB70B0FB2AFE9",
+      "status": "copied",
+      "targetSha256": "3D1D156D8DE42C7A2000B7165DA67B41FD4B2571C9B8ABCAF28DB70B0FB2AFE9"
+    },
+    {
+      "source": "patches/pwar/client/frame_ring_tests.cpp",
+      "target": "client/frame_ring_tests.cpp",
+      "sourceSha256": "9AD6C00E598FE3BFA718589865D0CCB2A23C82335CBAFC9474D2BC55E828AFEA",
+      "sha256": "9AD6C00E598FE3BFA718589865D0CCB2A23C82335CBAFC9474D2BC55E828AFEA",
+      "status": "copied",
+      "targetSha256": "9AD6C00E598FE3BFA718589865D0CCB2A23C82335CBAFC9474D2BC55E828AFEA"
+    },
+    {
+      "source": "patches/pwar/client/frame_ring.h",
+      "target": "client/frame_ring.h",
+      "sourceSha256": "1ACBDB3EC9D9A3D4048F1CEA27F96C0F112AF7CB5D452D13D764129CB65E4A05",
+      "sha256": "1ACBDB3EC9D9A3D4048F1CEA27F96C0F112AF7CB5D452D13D764129CB65E4A05",
+      "status": "copied",
+      "targetSha256": "1ACBDB3EC9D9A3D4048F1CEA27F96C0F112AF7CB5D452D13D764129CB65E4A05"
+    },
+    {
+      "source": "patches/pwar/client/README.md",
+      "target": "client/README.md",
+      "sourceSha256": "AED42995F986759EDD2662F2C1070D5189213670A12B28EDA78A2042E33FE0BF",
+      "sha256": "AED42995F986759EDD2662F2C1070D5189213670A12B28EDA78A2042E33FE0BF",
+      "status": "copied",
+      "targetSha256": "AED42995F986759EDD2662F2C1070D5189213670A12B28EDA78A2042E33FE0BF"
+    },
+    {
+      "source": "patches/pwar/client/REAL_MACHINE_QUALIFICATION.md",
+      "target": "client/REAL_MACHINE_QUALIFICATION.md",
+      "sourceSha256": "8A6A0F581FF50A394F78E7947E5F0828737E8329302B17BE3E272EF8A7AAF823",
+      "sha256": "8A6A0F581FF50A394F78E7947E5F0828737E8329302B17BE3E272EF8A7AAF823",
+      "status": "copied",
+      "targetSha256": "8A6A0F581FF50A394F78E7947E5F0828737E8329302B17BE3E272EF8A7AAF823"
+    },
+    {
+      "source": "asiosdk/common/asio.h",
+      "target": "deps/asiosdk/common/asio.h",
+      "sourceSha256": "93D2F80D49B4AC9C963514E7C1307AB5111D8104246192233745BEB058534EA1",
+      "sha256": "93D2F80D49B4AC9C963514E7C1307AB5111D8104246192233745BEB058534EA1",
+      "status": "copied",
+      "targetSha256": "93D2F80D49B4AC9C963514E7C1307AB5111D8104246192233745BEB058534EA1"
+    },
+    {
+      "source": "asiosdk/common/asiosys.h",
+      "target": "deps/asiosdk/common/asiosys.h",
+      "sourceSha256": "F44A1ED0FD7C056FF047AEEBC4C05A8C185F0585A24D8DEBC55C70107777DBEF",
+      "sha256": "F44A1ED0FD7C056FF047AEEBC4C05A8C185F0585A24D8DEBC55C70107777DBEF",
+      "status": "copied",
+      "targetSha256": "F44A1ED0FD7C056FF047AEEBC4C05A8C185F0585A24D8DEBC55C70107777DBEF"
+    },
+    {
+      "source": "asiosdk/common/combase.cpp",
+      "target": "deps/asiosdk/common/combase.cpp",
+      "sourceSha256": "1F8EF8B79DE26C0435FF6544352AF36327643421491C353B059D86E0E344CD23",
+      "sha256": "1F8EF8B79DE26C0435FF6544352AF36327643421491C353B059D86E0E344CD23",
+      "status": "copied",
+      "targetSha256": "1F8EF8B79DE26C0435FF6544352AF36327643421491C353B059D86E0E344CD23"
+    },
+    {
+      "source": "asiosdk/common/combase.h",
+      "target": "deps/asiosdk/common/combase.h",
+      "sourceSha256": "29D1CCF49C332FDCDC7ABDDB32F5ADF9D475198EB0283B2CA19C450F35222B21",
+      "sha256": "29D1CCF49C332FDCDC7ABDDB32F5ADF9D475198EB0283B2CA19C450F35222B21",
+      "status": "copied",
+      "targetSha256": "29D1CCF49C332FDCDC7ABDDB32F5ADF9D475198EB0283B2CA19C450F35222B21"
+    },
+    {
+      "source": "asiosdk/common/dllentry.cpp",
+      "target": "deps/asiosdk/common/dllentry.cpp",
+      "sourceSha256": "F7B813E0D6191F0C973409780C3305E6BA1E72E3E6E5CF8F5125E7DECDF589A2",
+      "sha256": "F7B813E0D6191F0C973409780C3305E6BA1E72E3E6E5CF8F5125E7DECDF589A2",
+      "status": "copied",
+      "targetSha256": "F7B813E0D6191F0C973409780C3305E6BA1E72E3E6E5CF8F5125E7DECDF589A2"
+    },
+    {
+      "source": "asiosdk/common/iasiodrv.h",
+      "target": "deps/asiosdk/common/iasiodrv.h",
+      "sourceSha256": "86AD4788452C74823653CF57D4BD557C48BB6542D7E6EB7FFF80102C705A066D",
+      "sha256": "86AD4788452C74823653CF57D4BD557C48BB6542D7E6EB7FFF80102C705A066D",
+      "status": "copied",
+      "targetSha256": "86AD4788452C74823653CF57D4BD557C48BB6542D7E6EB7FFF80102C705A066D"
+    },
+    {
+      "source": "asiosdk/common/LICENSE.txt",
+      "target": "deps/asiosdk/common/LICENSE.txt",
+      "sourceSha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A",
+      "sha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A",
+      "status": "copied",
+      "targetSha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A"
+    },
+    {
+      "source": "asiosdk/common/register.cpp",
+      "target": "deps/asiosdk/common/register.cpp",
+      "sourceSha256": "B1A09DDD5245F336EE9C1A0A38099CF146DAFF5212990A052245E14D5798E22D",
+      "sha256": "B1A09DDD5245F336EE9C1A0A38099CF146DAFF5212990A052245E14D5798E22D",
+      "status": "copied",
+      "targetSha256": "B1A09DDD5245F336EE9C1A0A38099CF146DAFF5212990A052245E14D5798E22D"
+    },
+    {
+      "source": "asiosdk/common/wxdebug.h",
+      "target": "deps/asiosdk/common/wxdebug.h",
+      "sourceSha256": "B4C7293A3C7B8CDF6DD19CE7AE5766674D7F581522BD508DC6E6D6B0384785DA",
+      "sha256": "B4C7293A3C7B8CDF6DD19CE7AE5766674D7F581522BD508DC6E6D6B0384785DA",
+      "status": "copied",
+      "targetSha256": "B4C7293A3C7B8CDF6DD19CE7AE5766674D7F581522BD508DC6E6D6B0384785DA"
+    },
+    {
+      "source": "asiosdk/LICENSE.txt",
+      "target": "deps/asiosdk/LICENSE.txt",
+      "sourceSha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A",
+      "sha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A",
+      "status": "copied",
+      "targetSha256": "61E56814F24B32216884B2DB0B4DCC317111A5AB354D54D19DD9FC13D71B1C7A"
+    },
+    {
+      "source": "vendor/nlohmann/json.hpp",
+      "target": "deps/nlohmann/json.hpp",
+      "sourceSha256": "AAF127C04CB31C406E5B04A63F1AE89369FCCDE6D8FA7CDDA1ED4F32DFC5DE63",
+      "sha256": "AAF127C04CB31C406E5B04A63F1AE89369FCCDE6D8FA7CDDA1ED4F32DFC5DE63",
+      "status": "copied",
+      "targetSha256": "AAF127C04CB31C406E5B04A63F1AE89369FCCDE6D8FA7CDDA1ED4F32DFC5DE63"
+    },
+    {
+      "source": "vendor/nlohmann/LICENSE.MIT",
+      "target": "deps/nlohmann/LICENSE.MIT",
+      "sourceSha256": "46A65CFFD1EA955132D95A8DD921640714A8D6B537D2E4E482D31145AE95B603",
+      "sha256": "46A65CFFD1EA955132D95A8DD921640714A8D6B537D2E4E482D31145AE95B603",
+      "status": "copied",
+      "targetSha256": "46A65CFFD1EA955132D95A8DD921640714A8D6B537D2E4E482D31145AE95B603"
+    },
+    {
+      "source": "patches/pwar/PIPEWIRE_CLOCK_ADAPTATION.md",
+      "target": "docs/historical/PIPEWIRE_CLOCK_ADAPTATION.md",
+      "sourceSha256": "F7643858191D45A238524B34BE3665E71618F2795FC36DF6FAEA71428BB41293",
+      "sha256": "F7643858191D45A238524B34BE3665E71618F2795FC36DF6FAEA71428BB41293",
+      "status": "copied",
+      "targetSha256": "F7643858191D45A238524B34BE3665E71618F2795FC36DF6FAEA71428BB41293"
+    },
+    {
+      "source": "patches/pwar/qualification-inputs.json",
+      "target": "docs/historical/qualification-inputs.json",
+      "sourceSha256": "05472BBF0353B402D96525B4268D7A0B98ADBAD90961C4E81A5B54612CE35871",
+      "sha256": "05472BBF0353B402D96525B4268D7A0B98ADBAD90961C4E81A5B54612CE35871",
+      "status": "copied",
+      "targetSha256": "05472BBF0353B402D96525B4268D7A0B98ADBAD90961C4E81A5B54612CE35871"
+    },
+    {
+      "source": "patches/pwar/README.md",
+      "target": "docs/historical/README.md",
+      "sourceSha256": "C061D876B9C5C6B7EB8FFABBB5F577BEA799C56FBE0C6E8D79CF3B595D4A6024",
+      "sha256": "C061D876B9C5C6B7EB8FFABBB5F577BEA799C56FBE0C6E8D79CF3B595D4A6024",
+      "status": "copied",
+      "targetSha256": "C061D876B9C5C6B7EB8FFABBB5F577BEA799C56FBE0C6E8D79CF3B595D4A6024"
+    },
+    {
+      "source": "patches/pwar/TIMOX_INTERFACING.md",
+      "target": "docs/historical/TIMOX_INTERFACING.md",
+      "sourceSha256": "C08A78098EFF4E497D975368287903BBBF54BC4513BAEB24FF6720B66273B208",
+      "sha256": "C08A78098EFF4E497D975368287903BBBF54BC4513BAEB24FF6720B66273B208",
+      "status": "copied",
+      "targetSha256": "C08A78098EFF4E497D975368287903BBBF54BC4513BAEB24FF6720B66273B208"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/README.md",
+      "target": "docs/upstream-README.md",
+      "sourceSha256": "25730320DD8EC3BD017C5C9496DD2F3050BD2E6265A744B78630C47EBAED5A40",
+      "sha256": "25730320DD8EC3BD017C5C9496DD2F3050BD2E6265A744B78630C47EBAED5A40",
+      "status": "copied",
+      "targetSha256": "25730320DD8EC3BD017C5C9496DD2F3050BD2E6265A744B78630C47EBAED5A40"
+    },
+    {
+      "source": "patches/pwar/client/observe-roundtrip.cjs",
+      "target": "integration/reference/observe-roundtrip.cjs",
+      "sourceSha256": "4B728E0D70F77EB52E444D59CFE5213190ED037B67BC6E3C27ED4923B5EFE605",
+      "sha256": "4B728E0D70F77EB52E444D59CFE5213190ED037B67BC6E3C27ED4923B5EFE605",
+      "status": "copied",
+      "targetSha256": "4B728E0D70F77EB52E444D59CFE5213190ED037B67BC6E3C27ED4923B5EFE605"
+    },
+    {
+      "source": "patches/pwar/client/test-supervision.ps1",
+      "target": "integration/reference/test-supervision.ps1",
+      "sourceSha256": "CC332B9B177788C61D4B6E3D83246746C603115C9D0E74139F31C91D53F2C134",
+      "sha256": "CC332B9B177788C61D4B6E3D83246746C603115C9D0E74139F31C91D53F2C134",
+      "status": "copied",
+      "targetSha256": "CC332B9B177788C61D4B6E3D83246746C603115C9D0E74139F31C91D53F2C134"
+    },
+    {
+      "source": "patches/pwar/timox_host_tests.cpp",
+      "target": "integration/reference/timox_host_tests.cpp",
+      "sourceSha256": "D36CCB7DB0ED4FE1756E657330C2E8AF2B733C2ACF193514603B3D4948002D2B",
+      "sha256": "D36CCB7DB0ED4FE1756E657330C2E8AF2B733C2ACF193514603B3D4948002D2B",
+      "status": "copied",
+      "targetSha256": "D36CCB7DB0ED4FE1756E657330C2E8AF2B733C2ACF193514603B3D4948002D2B"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/LICENSE",
+      "target": "LICENSE",
+      "sourceSha256": "3972DC9744F6499F0F9B2DBF76696F2AE7AD8AF9B23DDE66D6AF86C9DFB36986",
+      "sha256": "3972DC9744F6499F0F9B2DBF76696F2AE7AD8AF9B23DDE66D6AF86C9DFB36986",
+      "status": "copied",
+      "targetSha256": "3972DC9744F6499F0F9B2DBF76696F2AE7AD8AF9B23DDE66D6AF86C9DFB36986"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/CMakeLists.txt",
+      "target": "linux/CMakeLists.txt",
+      "sourceSha256": "9C2AC361D7A3A809C6B5ECDE7033923ECD8DD3C1BB06513CA0222D29BE3DCCC2",
+      "sha256": "6EFDA7DE1A251457712F77ED70CC97296FBF4705FA070817D253FCB22090F617",
+      "status": "adapted-build-only",
+      "targetSha256": "6EFDA7DE1A251457712F77ED70CC97296FBF4705FA070817D253FCB22090F617"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/libpwar.c",
+      "target": "linux/libpwar.c",
+      "sourceSha256": "6D2ED3F07CDD5CD4A0709226E2545A246AD519AD3E68BCB9E18694A25AE0472D",
+      "sha256": "6D2ED3F07CDD5CD4A0709226E2545A246AD519AD3E68BCB9E18694A25AE0472D",
+      "status": "copied",
+      "targetSha256": "6D2ED3F07CDD5CD4A0709226E2545A246AD519AD3E68BCB9E18694A25AE0472D"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/libpwar.h",
+      "target": "linux/libpwar.h",
+      "sourceSha256": "0BE1BF58A9290C690E94C3042A0CF659BA0851C6103EC18EFEA753FC07D2A675",
+      "sha256": "0BE1BF58A9290C690E94C3042A0CF659BA0851C6103EC18EFEA753FC07D2A675",
+      "status": "copied",
+      "targetSha256": "0BE1BF58A9290C690E94C3042A0CF659BA0851C6103EC18EFEA753FC07D2A675"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/pwar_cli.c",
+      "target": "linux/pwar_cli.c",
+      "sourceSha256": "33076C738AAD6FFF6610FF9606C02D30AE1B6A873A7458A7948203771704945B",
+      "sha256": "33076C738AAD6FFF6610FF9606C02D30AE1B6A873A7458A7948203771704945B",
+      "status": "copied",
+      "targetSha256": "33076C738AAD6FFF6610FF9606C02D30AE1B6A873A7458A7948203771704945B"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/pwar_gui.cpp",
+      "target": "linux/pwar_gui.cpp",
+      "sourceSha256": "9049A906E24FB7F43D9D2E5803ED41C1EDCCEBE2BC995954675D88390969F8B1",
+      "sha256": "9049A906E24FB7F43D9D2E5803ED41C1EDCCEBE2BC995954675D88390969F8B1",
+      "status": "copied",
+      "targetSha256": "9049A906E24FB7F43D9D2E5803ED41C1EDCCEBE2BC995954675D88390969F8B1"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/pwar_gui.qml",
+      "target": "linux/pwar_gui.qml",
+      "sourceSha256": "02D47A552880D95F969F35A518FEB32D0DCEC9C3AA3DE2B4481BFBD251341A18",
+      "sha256": "02D47A552880D95F969F35A518FEB32D0DCEC9C3AA3DE2B4481BFBD251341A18",
+      "status": "copied",
+      "targetSha256": "02D47A552880D95F969F35A518FEB32D0DCEC9C3AA3DE2B4481BFBD251341A18"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/pwar_stream_relay.c",
+      "target": "linux/pwar_stream_relay.c",
+      "sourceSha256": "BB79C5769D9EF51D6BEF503AFE2B3566F11A2917637ACBC440043C00C0B51925",
+      "sha256": "BB79C5769D9EF51D6BEF503AFE2B3566F11A2917637ACBC440043C00C0B51925",
+      "status": "copied",
+      "targetSha256": "BB79C5769D9EF51D6BEF503AFE2B3566F11A2917637ACBC440043C00C0B51925"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/pwar.desktop",
+      "target": "linux/pwar.desktop",
+      "sourceSha256": "9208164755F91D42B928136759063795FCF79B77DF54995E52A7309487FBC411",
+      "sha256": "9208164755F91D42B928136759063795FCF79B77DF54995E52A7309487FBC411",
+      "status": "copied",
+      "targetSha256": "9208164755F91D42B928136759063795FCF79B77DF54995E52A7309487FBC411"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/PwarController.cpp",
+      "target": "linux/PwarController.cpp",
+      "sourceSha256": "1ACE9AE4FB8CA814133572E1FCC0E7FC31E193276B481C242E1467E3F748C991",
+      "sha256": "1ACE9AE4FB8CA814133572E1FCC0E7FC31E193276B481C242E1467E3F748C991",
+      "status": "copied",
+      "targetSha256": "1ACE9AE4FB8CA814133572E1FCC0E7FC31E193276B481C242E1467E3F748C991"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/PwarController.h",
+      "target": "linux/PwarController.h",
+      "sourceSha256": "D6029B992C41FA5DBFEA5188C6CB4BAC9D2C15B38947FC098DD9529B076E1D56",
+      "sha256": "D6029B992C41FA5DBFEA5188C6CB4BAC9D2C15B38947FC098DD9529B076E1D56",
+      "status": "copied",
+      "targetSha256": "D6029B992C41FA5DBFEA5188C6CB4BAC9D2C15B38947FC098DD9529B076E1D56"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/resources.qrc",
+      "target": "linux/resources.qrc",
+      "sourceSha256": "B3C7805341A1D0076C405D1011316B9B3ED73286D7CDBE15E69C144EE4384D20",
+      "sha256": "B3C7805341A1D0076C405D1011316B9B3ED73286D7CDBE15E69C144EE4384D20",
+      "status": "copied",
+      "targetSha256": "B3C7805341A1D0076C405D1011316B9B3ED73286D7CDBE15E69C144EE4384D20"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/test/CMakeLists.txt",
+      "target": "linux/test/CMakeLists.txt",
+      "sourceSha256": "BCAE1BEF67B261CCDEAEED1CD8BB48FC352A3A23E61902744D512BCFEA496590",
+      "sha256": "BCAE1BEF67B261CCDEAEED1CD8BB48FC352A3A23E61902744D512BCFEA496590",
+      "status": "copied",
+      "targetSha256": "BCAE1BEF67B261CCDEAEED1CD8BB48FC352A3A23E61902744D512BCFEA496590"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/test/integration_test.c",
+      "target": "linux/test/integration_test.c",
+      "sourceSha256": "8087FA56F222E50EB96D4CA3750AC648BC4A4937D796A65EDFB0E0F2D82CB68A",
+      "sha256": "8087FA56F222E50EB96D4CA3750AC648BC4A4937D796A65EDFB0E0F2D82CB68A",
+      "status": "copied",
+      "targetSha256": "8087FA56F222E50EB96D4CA3750AC648BC4A4937D796A65EDFB0E0F2D82CB68A"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/torture.c",
+      "target": "linux/torture.c",
+      "sourceSha256": "8AB5B161DC27A8DE2B234A8848DB6821C0B4A6A1E6E29A83892EC9E953A3EA9A",
+      "sha256": "8AB5B161DC27A8DE2B234A8848DB6821C0B4A6A1E6E29A83892EC9E953A3EA9A",
+      "status": "copied",
+      "targetSha256": "8AB5B161DC27A8DE2B234A8848DB6821C0B4A6A1E6E29A83892EC9E953A3EA9A"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/linux/windows_sim.c",
+      "target": "linux/windows_sim.c",
+      "sourceSha256": "0940E0D9F600496824A317C3B2CDB21C9CB997D9670BEEEF5BA8DDA74E555A77",
+      "sha256": "0940E0D9F600496824A317C3B2CDB21C9CB997D9670BEEEF5BA8DDA74E555A77",
+      "status": "copied",
+      "targetSha256": "0940E0D9F600496824A317C3B2CDB21C9CB997D9670BEEEF5BA8DDA74E555A77"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/media/pwar_icon_256x256.png",
+      "target": "media/pwar_icon_256x256.png",
+      "sourceSha256": "E5C2725F115EB8FFE9B182AB29C53C6C1FE38C7F17BE8E649310D634675BE6AA",
+      "sha256": "E5C2725F115EB8FFE9B182AB29C53C6C1FE38C7F17BE8E649310D634675BE6AA",
+      "status": "copied",
+      "targetSha256": "E5C2725F115EB8FFE9B182AB29C53C6C1FE38C7F17BE8E649310D634675BE6AA"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/media/pwar_icon.png",
+      "target": "media/pwar_icon.png",
+      "sourceSha256": "11001D033DDCE0C92BD0260B84EA490018628AA34EF2C10EB9CF6E48D1079A8A",
+      "sha256": "11001D033DDCE0C92BD0260B84EA490018628AA34EF2C10EB9CF6E48D1079A8A",
+      "status": "copied",
+      "targetSha256": "11001D033DDCE0C92BD0260B84EA490018628AA34EF2C10EB9CF6E48D1079A8A"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/media/pwar_logo_round.png",
+      "target": "media/pwar_logo_round.png",
+      "sourceSha256": "2680A83E345E1CACC755DCF5F5AA8638082AFDD656D7E94133F44A298CBC323E",
+      "sha256": "2680A83E345E1CACC755DCF5F5AA8638082AFDD656D7E94133F44A298CBC323E",
+      "status": "copied",
+      "targetSha256": "2680A83E345E1CACC755DCF5F5AA8638082AFDD656D7E94133F44A298CBC323E"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/media/pwar_logo.png",
+      "target": "media/pwar_logo.png",
+      "sourceSha256": "C9F24F7D869819F53FCF39629E12E14E2E268F38E2B439724AA8E9BE75DE972E",
+      "sha256": "C9F24F7D869819F53FCF39629E12E14E2E268F38E2B439724AA8E9BE75DE972E",
+      "status": "copied",
+      "targetSha256": "C9F24F7D869819F53FCF39629E12E14E2E268F38E2B439724AA8E9BE75DE972E"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/media/screenshot.png",
+      "target": "media/screenshot.png",
+      "sourceSha256": "FED306453A145BC7EF545932C694232DB8FC326452B93202CFB683E966994204",
+      "sha256": "FED306453A145BC7EF545932C694232DB8FC326452B93202CFB683E966994204",
+      "status": "copied",
+      "targetSha256": "FED306453A145BC7EF545932C694232DB8FC326452B93202CFB683E966994204"
+    },
+    {
+      "source": "patches/pwar/0001-router-validate-buffer-bounds.patch",
+      "target": "patches/0001-router-validate-buffer-bounds.patch",
+      "sourceSha256": "029938C0E0E7B353D7DB79610AF43627E84BE35628DD49C898AF5B7834C5E279",
+      "sha256": "029938C0E0E7B353D7DB79610AF43627E84BE35628DD49C898AF5B7834C5E279",
+      "status": "copied",
+      "targetSha256": "029938C0E0E7B353D7DB79610AF43627E84BE35628DD49C898AF5B7834C5E279"
+    },
+    {
+      "source": "patches/pwar/0002-asio-drain-listener-before-disposal.patch",
+      "target": "patches/0002-asio-drain-listener-before-disposal.patch",
+      "sourceSha256": "5F7D1A216E494567AF5DF2C05A96ADBB1AA81F58A7F83EB82BE71D4FE93488B4",
+      "sha256": "5F7D1A216E494567AF5DF2C05A96ADBB1AA81F58A7F83EB82BE71D4FE93488B4",
+      "status": "copied",
+      "targetSha256": "5F7D1A216E494567AF5DF2C05A96ADBB1AA81F58A7F83EB82BE71D4FE93488B4"
+    },
+    {
+      "source": "patches/pwar/0003-asio-validate-datagrams-before-division.patch",
+      "target": "patches/0003-asio-validate-datagrams-before-division.patch",
+      "sourceSha256": "C14B590F33C0263C12BD44B350C3A0491426AE21244BE97397D920E4DDA7CA1F",
+      "sha256": "C14B590F33C0263C12BD44B350C3A0491426AE21244BE97397D920E4DDA7CA1F",
+      "status": "copied",
+      "targetSha256": "C14B590F33C0263C12BD44B350C3A0491426AE21244BE97397D920E4DDA7CA1F"
+    },
+    {
+      "source": "patches/pwar/0004-asio-map-stereo-and-partial-channels.patch",
+      "target": "patches/0004-asio-map-stereo-and-partial-channels.patch",
+      "sourceSha256": "70A9F5330538307187F3A0DD47B9C9ED9BA9ED43106E5EE4A4C3CD532471DD82",
+      "sha256": "70A9F5330538307187F3A0DD47B9C9ED9BA9ED43106E5EE4A4C3CD532471DD82",
+      "status": "copied",
+      "targetSha256": "70A9F5330538307187F3A0DD47B9C9ED9BA9ED43106E5EE4A4C3CD532471DD82"
+    },
+    {
+      "source": "patches/pwar/0005-report-listener-startup-failure.patch",
+      "target": "patches/0005-report-listener-startup-failure.patch",
+      "sourceSha256": "D5DAA7071A600650814CA3E7EC0E5B7DC5F646966D75CD60D067532E625324F3",
+      "sha256": "D5DAA7071A600650814CA3E7EC0E5B7DC5F646966D75CD60D067532E625324F3",
+      "status": "copied",
+      "targetSha256": "D5DAA7071A600650814CA3E7EC0E5B7DC5F646966D75CD60D067532E625324F3"
+    },
+    {
+      "source": "patches/pwar/0006-disable-network-logging-by-default.patch",
+      "target": "patches/0006-disable-network-logging-by-default.patch",
+      "sourceSha256": "D1CDFB7DF56A7FCD163047F3D0C231540E526D90590123ECA0555C1255B6C296",
+      "sha256": "D1CDFB7DF56A7FCD163047F3D0C231540E526D90590123ECA0555C1255B6C296",
+      "status": "copied",
+      "targetSha256": "D1CDFB7DF56A7FCD163047F3D0C231540E526D90590123ECA0555C1255B6C296"
+    },
+    {
+      "source": "patches/pwar/0007-linux-guard-callback-input-and-quantum.patch",
+      "target": "patches/0007-linux-guard-callback-input-and-quantum.patch",
+      "sourceSha256": "4775060D9A3FB4F5244FB456D01AA6777838B3705FEE743131A1DF26FF5519FC",
+      "sha256": "4775060D9A3FB4F5244FB456D01AA6777838B3705FEE743131A1DF26FF5519FC",
+      "status": "copied",
+      "targetSha256": "4775060D9A3FB4F5244FB456D01AA6777838B3705FEE743131A1DF26FF5519FC"
+    },
+    {
+      "source": "patches/pwar/0008-router-preserve-fragment-integrity.patch",
+      "target": "patches/0008-router-preserve-fragment-integrity.patch",
+      "sourceSha256": "BBBC96517634463D3BE7E6198F31B1D3B8CD7BDE674A2BC767832E4A53D0E01C",
+      "sha256": "BBBC96517634463D3BE7E6198F31B1D3B8CD7BDE674A2BC767832E4A53D0E01C",
+      "status": "copied",
+      "targetSha256": "BBBC96517634463D3BE7E6198F31B1D3B8CD7BDE674A2BC767832E4A53D0E01C"
+    },
+    {
+      "source": "patches/pwar/0009-preserve-frame-cursor-and-response-sequence.patch",
+      "target": "patches/0009-preserve-frame-cursor-and-response-sequence.patch",
+      "sourceSha256": "5ECB89193C7454F2437FCB2445CD5234C5B5B2BA46262C1B433E2584EB8EABF6",
+      "sha256": "5ECB89193C7454F2437FCB2445CD5234C5B5B2BA46262C1B433E2584EB8EABF6",
+      "status": "copied",
+      "targetSha256": "5ECB89193C7454F2437FCB2445CD5234C5B5B2BA46262C1B433E2584EB8EABF6"
+    },
+    {
+      "source": "patches/pwar/0010-cli-validate-before-startup.patch",
+      "target": "patches/0010-cli-validate-before-startup.patch",
+      "sourceSha256": "DC925BF6D6BB3DFA8B6A1E8A4130AEED0722A06F754A1ABA97A77A25296E3EA4",
+      "sha256": "DC925BF6D6BB3DFA8B6A1E8A4130AEED0722A06F754A1ABA97A77A25296E3EA4",
+      "status": "copied",
+      "targetSha256": "DC925BF6D6BB3DFA8B6A1E8A4130AEED0722A06F754A1ABA97A77A25296E3EA4"
+    },
+    {
+      "source": "patches/pwar/0011-linux-frame-queue.patch",
+      "target": "patches/0011-linux-frame-queue.patch",
+      "sourceSha256": "28D737C13C93FC6A8FE98E3DE93EB9A9445252B98434F60896EC59AAB3F7D269",
+      "sha256": "28D737C13C93FC6A8FE98E3DE93EB9A9445252B98434F60896EC59AAB3F7D269",
+      "status": "copied",
+      "targetSha256": "28D737C13C93FC6A8FE98E3DE93EB9A9445252B98434F60896EC59AAB3F7D269"
+    },
+    {
+      "source": "patches/pwar/0012-linux-queue-network-worker.patch",
+      "target": "patches/0012-linux-queue-network-worker.patch",
+      "sourceSha256": "5684B1FAE7DB220ACE9D498175FF908DEBC50DD078387AFAE4878EADC5C6FA05",
+      "sha256": "5684B1FAE7DB220ACE9D498175FF908DEBC50DD078387AFAE4878EADC5C6FA05",
+      "status": "copied",
+      "targetSha256": "5684B1FAE7DB220ACE9D498175FF908DEBC50DD078387AFAE4878EADC5C6FA05"
+    },
+    {
+      "source": "patches/pwar/0013-distinguish-stream-chunks-from-grouped-fragments.patch",
+      "target": "patches/0013-distinguish-stream-chunks-from-grouped-fragments.patch",
+      "sourceSha256": "2350BE779C64326FF4F25B6F04485AC2F8C7357B8D3066A7A882D9A75A3F7360",
+      "sha256": "2350BE779C64326FF4F25B6F04485AC2F8C7357B8D3066A7A882D9A75A3F7360",
+      "status": "copied",
+      "targetSha256": "2350BE779C64326FF4F25B6F04485AC2F8C7357B8D3066A7A882D9A75A3F7360"
+    },
+    {
+      "source": "patches/pwar/0014-linux-account-synthesized-silence.patch",
+      "target": "patches/0014-linux-account-synthesized-silence.patch",
+      "sourceSha256": "2E83DE7BC11FDA4B55648D71950890A2AE1F21E082AD7351CF18F07295D85018",
+      "sha256": "2E83DE7BC11FDA4B55648D71950890A2AE1F21E082AD7351CF18F07295D85018",
+      "status": "copied",
+      "targetSha256": "2E83DE7BC11FDA4B55648D71950890A2AE1F21E082AD7351CF18F07295D85018"
+    },
+    {
+      "source": "patches/pwar/0015-cli-describe-current-buffer-behavior.patch",
+      "target": "patches/0015-cli-describe-current-buffer-behavior.patch",
+      "sourceSha256": "4C1070AB88D893F7ABBFFF1A5CA05ADD32CC5AA2D67C63F87E10E116FB792CF5",
+      "sha256": "4C1070AB88D893F7ABBFFF1A5CA05ADD32CC5AA2D67C63F87E10E116FB792CF5",
+      "status": "copied",
+      "targetSha256": "4C1070AB88D893F7ABBFFF1A5CA05ADD32CC5AA2D67C63F87E10E116FB792CF5"
+    },
+    {
+      "source": "patches/pwar/experimental-pipewire-stream-backend.patch",
+      "target": "patches/experimental-pipewire-stream-backend.patch",
+      "sourceSha256": "F61056D619A6A57CFFFC2CE7F3DF076929D07211A055EB64A74CD7C5D46EB26E",
+      "sha256": "F61056D619A6A57CFFFC2CE7F3DF076929D07211A055EB64A74CD7C5D46EB26E",
+      "status": "copied",
+      "targetSha256": "F61056D619A6A57CFFFC2CE7F3DF076929D07211A055EB64A74CD7C5D46EB26E"
+    },
+    {
+      "source": "patches/pwar/measured-stream-backend-20261025.patch",
+      "target": "patches/measured-stream-backend-20261025.patch",
+      "sourceSha256": "3D9BAD98C05BCA70B6545993B6D9579DC45339ECF69FE5F67DCFF6149A51E451",
+      "sha256": "3D9BAD98C05BCA70B6545993B6D9579DC45339ECF69FE5F67DCFF6149A51E451",
+      "status": "copied",
+      "targetSha256": "3D9BAD98C05BCA70B6545993B6D9579DC45339ECF69FE5F67DCFF6149A51E451"
+    },
+    {
+      "source": "patches/pwar/windows-receive-burst-capacity.patch",
+      "target": "patches/windows-receive-burst-capacity.patch",
+      "sourceSha256": "B17613CA5D764544D8DC7A8112D6394891A583786A467120589DF6410B99385C",
+      "sha256": "B17613CA5D764544D8DC7A8112D6394891A583786A467120589DF6410B99385C",
+      "status": "copied",
+      "targetSha256": "B17613CA5D764544D8DC7A8112D6394891A583786A467120589DF6410B99385C"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/latency_manager.c",
+      "target": "protocol/latency_manager.c",
+      "sourceSha256": "49952B1EE227B43D486437B02B2395757AD88E3C27765761B3CE3182196F353A",
+      "sha256": "49952B1EE227B43D486437B02B2395757AD88E3C27765761B3CE3182196F353A",
+      "status": "copied",
+      "targetSha256": "49952B1EE227B43D486437B02B2395757AD88E3C27765761B3CE3182196F353A"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/latency_manager.h",
+      "target": "protocol/latency_manager.h",
+      "sourceSha256": "6A7C5237359831A653F8C864F3D2977F8E0070021A791AE6EDE453AEB209E4DF",
+      "sha256": "6A7C5237359831A653F8C864F3D2977F8E0070021A791AE6EDE453AEB209E4DF",
+      "status": "copied",
+      "targetSha256": "6A7C5237359831A653F8C864F3D2977F8E0070021A791AE6EDE453AEB209E4DF"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_audio_queue.c",
+      "target": "protocol/pwar_audio_queue.c",
+      "sourceSha256": "594C701F2B246F6D53777D50B2DCDEA9BAF8409FDB5569FCAB78D851CBFD5644",
+      "sha256": "594C701F2B246F6D53777D50B2DCDEA9BAF8409FDB5569FCAB78D851CBFD5644",
+      "status": "copied",
+      "targetSha256": "594C701F2B246F6D53777D50B2DCDEA9BAF8409FDB5569FCAB78D851CBFD5644"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_audio_queue.h",
+      "target": "protocol/pwar_audio_queue.h",
+      "sourceSha256": "2DB3CA58F8143F91354D77AD7735D6B0F19F749E0EFD6280FB6787197E982D98",
+      "sha256": "2DB3CA58F8143F91354D77AD7735D6B0F19F749E0EFD6280FB6787197E982D98",
+      "status": "copied",
+      "targetSha256": "2DB3CA58F8143F91354D77AD7735D6B0F19F749E0EFD6280FB6787197E982D98"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_latency_types.h",
+      "target": "protocol/pwar_latency_types.h",
+      "sourceSha256": "59B4A106D293183155858187C4F152776AB5255952D99111D5BCA49B5A932A93",
+      "sha256": "59B4A106D293183155858187C4F152776AB5255952D99111D5BCA49B5A932A93",
+      "status": "copied",
+      "targetSha256": "59B4A106D293183155858187C4F152776AB5255952D99111D5BCA49B5A932A93"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_packet.h",
+      "target": "protocol/pwar_packet.h",
+      "sourceSha256": "D0F2B839BC91579D0FF53BCEBB1D78F193A5E25E4317616682E8A89F556BBA45",
+      "sha256": "D0F2B839BC91579D0FF53BCEBB1D78F193A5E25E4317616682E8A89F556BBA45",
+      "status": "copied",
+      "targetSha256": "D0F2B839BC91579D0FF53BCEBB1D78F193A5E25E4317616682E8A89F556BBA45"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_rcv_buffer.c",
+      "target": "protocol/pwar_rcv_buffer.c",
+      "sourceSha256": "7E79C4BB2AD5B784A0F01FE9E737702BACA88958736E40D53B3958836EAF7EB8",
+      "sha256": "7E79C4BB2AD5B784A0F01FE9E737702BACA88958736E40D53B3958836EAF7EB8",
+      "status": "copied",
+      "targetSha256": "7E79C4BB2AD5B784A0F01FE9E737702BACA88958736E40D53B3958836EAF7EB8"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_rcv_buffer.h",
+      "target": "protocol/pwar_rcv_buffer.h",
+      "sourceSha256": "08680C88C02B6661A0E28AD7447956747B0B2B375A009BE9422DC65F768C7082",
+      "sha256": "08680C88C02B6661A0E28AD7447956747B0B2B375A009BE9422DC65F768C7082",
+      "status": "copied",
+      "targetSha256": "08680C88C02B6661A0E28AD7447956747B0B2B375A009BE9422DC65F768C7082"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_router.c",
+      "target": "protocol/pwar_router.c",
+      "sourceSha256": "247D7518627D79E9558080B90EB42E33B63F9D35A06DABCC660B0E36F646B270",
+      "sha256": "247D7518627D79E9558080B90EB42E33B63F9D35A06DABCC660B0E36F646B270",
+      "status": "copied",
+      "targetSha256": "247D7518627D79E9558080B90EB42E33B63F9D35A06DABCC660B0E36F646B270"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/pwar_router.h",
+      "target": "protocol/pwar_router.h",
+      "sourceSha256": "D9DFB87B68E23DD42E47451AADB46A3A035F984E086D93B4D270111D9B3A068C",
+      "sha256": "D9DFB87B68E23DD42E47451AADB46A3A035F984E086D93B4D270111D9B3A068C",
+      "status": "copied",
+      "targetSha256": "D9DFB87B68E23DD42E47451AADB46A3A035F984E086D93B4D270111D9B3A068C"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/test/CMakeLists.txt",
+      "target": "protocol/test/CMakeLists.txt",
+      "sourceSha256": "CB031AE35D18BC3D8B2BADE7C7966D9C842333345F31C177005FB03EC50232FF",
+      "sha256": "CB031AE35D18BC3D8B2BADE7C7966D9C842333345F31C177005FB03EC50232FF",
+      "status": "copied",
+      "targetSha256": "CB031AE35D18BC3D8B2BADE7C7966D9C842333345F31C177005FB03EC50232FF"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/test/Makefile",
+      "target": "protocol/test/Makefile",
+      "sourceSha256": "5409ACD24C0C4F443191F88788F34E8A18F0F5D8EAC26C49B72B1BE7A1C2920E",
+      "sha256": "5409ACD24C0C4F443191F88788F34E8A18F0F5D8EAC26C49B72B1BE7A1C2920E",
+      "status": "copied",
+      "targetSha256": "5409ACD24C0C4F443191F88788F34E8A18F0F5D8EAC26C49B72B1BE7A1C2920E"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/test/pwar_rcv_buffer_test.c",
+      "target": "protocol/test/pwar_rcv_buffer_test.c",
+      "sourceSha256": "4B45EA6D5240BCE648EC707C1222AF688E88160CB51F47CBE7A7DCFD988C998B",
+      "sha256": "4B45EA6D5240BCE648EC707C1222AF688E88160CB51F47CBE7A7DCFD988C998B",
+      "status": "copied",
+      "targetSha256": "4B45EA6D5240BCE648EC707C1222AF688E88160CB51F47CBE7A7DCFD988C998B"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/test/pwar_router_test.c",
+      "target": "protocol/test/pwar_router_test.c",
+      "sourceSha256": "53952043AFC45CD9483AEDE703CF0B4E27695D3E25D1D8C80A4FD404185C0A94",
+      "sha256": "53952043AFC45CD9483AEDE703CF0B4E27695D3E25D1D8C80A4FD404185C0A94",
+      "status": "copied",
+      "targetSha256": "53952043AFC45CD9483AEDE703CF0B4E27695D3E25D1D8C80A4FD404185C0A94"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/protocol/test/pwar_send_receive_chain_test.c",
+      "target": "protocol/test/pwar_send_receive_chain_test.c",
+      "sourceSha256": "042781E36D66D17DCA949E1B1F4E9DDB7AA410AD60BBC777BED9571C0C8DBD1D",
+      "sha256": "042781E36D66D17DCA949E1B1F4E9DDB7AA410AD60BBC777BED9571C0C8DBD1D",
+      "status": "copied",
+      "targetSha256": "042781E36D66D17DCA949E1B1F4E9DDB7AA410AD60BBC777BED9571C0C8DBD1D"
+    },
+    {
+      "source": "patches/pwar/asio_channel_tests.cpp",
+      "target": "tests/asio_channel_tests.cpp",
+      "sourceSha256": "69613C7CBB766DA63BF52A97A589189094D605591D492DDED341F921B8580D97",
+      "sha256": "69613C7CBB766DA63BF52A97A589189094D605591D492DDED341F921B8580D97",
+      "status": "copied",
+      "targetSha256": "69613C7CBB766DA63BF52A97A589189094D605591D492DDED341F921B8580D97"
+    },
+    {
+      "source": "patches/pwar/asio_lifecycle_tests.cpp",
+      "target": "tests/asio_lifecycle_tests.cpp",
+      "sourceSha256": "2ACCBB81D90E81EDCA94023DA36ABECAA793B135E2636F84C01B7302042BAC46",
+      "sha256": "2ACCBB81D90E81EDCA94023DA36ABECAA793B135E2636F84C01B7302042BAC46",
+      "status": "copied",
+      "targetSha256": "2ACCBB81D90E81EDCA94023DA36ABECAA793B135E2636F84C01B7302042BAC46"
+    },
+    {
+      "source": "patches/pwar/CMakeLists.txt",
+      "target": "tests/CMakeLists.txt",
+      "sourceSha256": "BAFEEC1C90ED7786FCDBD7B14C59BA5E271422E1F0D787B4360869F6B2D855C5",
+      "sha256": "0DA6C327DF2F59A461A5438D3BBDAB8B7FD90C0760FE8BAEA12E239E4910DDAA",
+      "status": "adapted-build-only",
+      "targetSha256": "0DA6C327DF2F59A461A5438D3BBDAB8B7FD90C0760FE8BAEA12E239E4910DDAA"
+    },
+    {
+      "source": "patches/pwar/linux_callback_tests.cpp",
+      "target": "tests/linux_callback_tests.cpp",
+      "sourceSha256": "3422D708C1A30B0632A3CBFF6A08344B178AEF23F07ABBBF4B38089EAAFBCF6A",
+      "sha256": "3422D708C1A30B0632A3CBFF6A08344B178AEF23F07ABBBF4B38089EAAFBCF6A",
+      "status": "copied",
+      "targetSha256": "3422D708C1A30B0632A3CBFF6A08344B178AEF23F07ABBBF4B38089EAAFBCF6A"
+    },
+    {
+      "source": "patches/pwar/linux_queue_callback_tests.c",
+      "target": "tests/linux_queue_callback_tests.c",
+      "sourceSha256": "13874758AA8AC7D47C81F2E35112EC9D7DF78AC59B72A3947DFF83D3811CD880",
+      "sha256": "13874758AA8AC7D47C81F2E35112EC9D7DF78AC59B72A3947DFF83D3811CD880",
+      "status": "copied",
+      "targetSha256": "13874758AA8AC7D47C81F2E35112EC9D7DF78AC59B72A3947DFF83D3811CD880"
+    },
+    {
+      "source": "patches/pwar/protocol-audit/audio_queue_tests.c",
+      "target": "tests/protocol-audit/audio_queue_tests.c",
+      "sourceSha256": "F5E240C5E73B1B7E2E3A9ED7F6F3A5F0518A03049EED50AD758509CC77ACEB80",
+      "sha256": "F5E240C5E73B1B7E2E3A9ED7F6F3A5F0518A03049EED50AD758509CC77ACEB80",
+      "status": "copied",
+      "targetSha256": "F5E240C5E73B1B7E2E3A9ED7F6F3A5F0518A03049EED50AD758509CC77ACEB80"
+    },
+    {
+      "source": "patches/pwar/protocol-audit/cli_check.cmake",
+      "target": "tests/protocol-audit/cli_check.cmake",
+      "sourceSha256": "8F22C9DC83A7A4E0DF019FBB2FACB7A8317EBD5958C857ED13480ED03EE5B9F6",
+      "sha256": "8F22C9DC83A7A4E0DF019FBB2FACB7A8317EBD5958C857ED13480ED03EE5B9F6",
+      "status": "copied",
+      "targetSha256": "8F22C9DC83A7A4E0DF019FBB2FACB7A8317EBD5958C857ED13480ED03EE5B9F6"
+    },
+    {
+      "source": "patches/pwar/protocol-audit/CMakeLists.txt",
+      "target": "tests/protocol-audit/CMakeLists.txt",
+      "sourceSha256": "A197ECAF092D9A2279FC3404227E68C3A50423C5252A602A90E9A7858611EFD5",
+      "sha256": "83F6C923BA3768A60963F602F824DBFFB46BB6804AEC643A4ED7D34A5E463FD5",
+      "status": "adapted-build-only",
+      "targetSha256": "83F6C923BA3768A60963F602F824DBFFB46BB6804AEC643A4ED7D34A5E463FD5"
+    },
+    {
+      "source": "patches/pwar/protocol-audit/protocol_audit.cpp",
+      "target": "tests/protocol-audit/protocol_audit.cpp",
+      "sourceSha256": "4E4B02DF043B852AF773B32A308CE0B9BCBE0642AB1D783E2689A4C2EE2688D9",
+      "sha256": "4E4B02DF043B852AF773B32A308CE0B9BCBE0642AB1D783E2689A4C2EE2688D9",
+      "status": "copied",
+      "targetSha256": "4E4B02DF043B852AF773B32A308CE0B9BCBE0642AB1D783E2689A4C2EE2688D9"
+    },
+    {
+      "source": "patches/pwar/protocol-audit/receive_buffer_audit.cpp",
+      "target": "tests/protocol-audit/receive_buffer_audit.cpp",
+      "sourceSha256": "48FEF07F7C100EEE37B4FF63BF08049A64DC3E39381BB7217E15A37F4439A04B",
+      "sha256": "48FEF07F7C100EEE37B4FF63BF08049A64DC3E39381BB7217E15A37F4439A04B",
+      "status": "copied",
+      "targetSha256": "48FEF07F7C100EEE37B4FF63BF08049A64DC3E39381BB7217E15A37F4439A04B"
+    },
+    {
+      "source": "patches/pwar/router_bounds_tests.cpp",
+      "target": "tests/router_bounds_tests.cpp",
+      "sourceSha256": "549D5B08E4BBE37F4A61FC8D58B33BD1B6B5A7C63D58091C3B6427038C5A3A46",
+      "sha256": "549D5B08E4BBE37F4A61FC8D58B33BD1B6B5A7C63D58091C3B6427038C5A3A46",
+      "status": "copied",
+      "targetSha256": "549D5B08E4BBE37F4A61FC8D58B33BD1B6B5A7C63D58091C3B6427038C5A3A46"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/asio/CMakeLists.txt",
+      "target": "windows/asio/CMakeLists.txt",
+      "sourceSha256": "8BDC233D6992F099B762C6542FD0D58B04F9CDAA6436436E5C71B2AA5E7D689F",
+      "sha256": "9469C9FBECCC98EADE7D73282406083FB296CF82BFB88CC9A1209FA66D0242D1",
+      "status": "adapted-build-only",
+      "targetSha256": "9469C9FBECCC98EADE7D73282406083FB296CF82BFB88CC9A1209FA66D0242D1"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/asio/pwarASIO.cpp",
+      "target": "windows/asio/pwarASIO.cpp",
+      "sourceSha256": "585CB9BED344A16CD26D4F1A3DD3CD6B4F65D6F5B7229E3A948B92408EB5A812",
+      "sha256": "585CB9BED344A16CD26D4F1A3DD3CD6B4F65D6F5B7229E3A948B92408EB5A812",
+      "status": "copied",
+      "targetSha256": "585CB9BED344A16CD26D4F1A3DD3CD6B4F65D6F5B7229E3A948B92408EB5A812"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/asio/pwarASIO.def",
+      "target": "windows/asio/pwarASIO.def",
+      "sourceSha256": "09C69BF56A86F963AA4495BC3C01FE37D43D5E71272C22C5B42D4F242A7B485D",
+      "sha256": "09C69BF56A86F963AA4495BC3C01FE37D43D5E71272C22C5B42D4F242A7B485D",
+      "status": "copied",
+      "targetSha256": "09C69BF56A86F963AA4495BC3C01FE37D43D5E71272C22C5B42D4F242A7B485D"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/asio/pwarASIO.h",
+      "target": "windows/asio/pwarASIO.h",
+      "sourceSha256": "A46B6A97474A17E21B2127CF5E3C7483602B7C93B0D2B880CF51210C8F0F0E27",
+      "sha256": "A46B6A97474A17E21B2127CF5E3C7483602B7C93B0D2B880CF51210C8F0F0E27",
+      "status": "copied",
+      "targetSha256": "A46B6A97474A17E21B2127CF5E3C7483602B7C93B0D2B880CF51210C8F0F0E27"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/asio/pwarASIOLog.cpp",
+      "target": "windows/asio/pwarASIOLog.cpp",
+      "sourceSha256": "C50E2A6DA5F76DE4AC1C42E477E9EAE3A675835624343147A1DD2A8778D1EE15",
+      "sha256": "C50E2A6DA5F76DE4AC1C42E477E9EAE3A675835624343147A1DD2A8778D1EE15",
+      "status": "copied",
+      "targetSha256": "C50E2A6DA5F76DE4AC1C42E477E9EAE3A675835624343147A1DD2A8778D1EE15"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/asio/pwarASIOLog.h",
+      "target": "windows/asio/pwarASIOLog.h",
+      "sourceSha256": "2CD8CF399D12EF57B29D14782453B89B25B4F30E7862BBCB21D52172B03C731F",
+      "sha256": "2CD8CF399D12EF57B29D14782453B89B25B4F30E7862BBCB21D52172B03C731F",
+      "status": "copied",
+      "targetSha256": "2CD8CF399D12EF57B29D14782453B89B25B4F30E7862BBCB21D52172B03C731F"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/torture/CMakeLists.txt",
+      "target": "windows/torture/CMakeLists.txt",
+      "sourceSha256": "EC848CD82A345462AC7D3A3305C7F45642A788576456383423911155E63EFDAF",
+      "sha256": "EC848CD82A345462AC7D3A3305C7F45642A788576456383423911155E63EFDAF",
+      "status": "copied",
+      "targetSha256": "EC848CD82A345462AC7D3A3305C7F45642A788576456383423911155E63EFDAF"
+    },
+    {
+      "source": "build_pwar_reconciled_20261025/windows/torture/torture_main.cpp",
+      "target": "windows/torture/torture_main.cpp",
+      "sourceSha256": "99345DF8E24C5204BD35C6C50BC3B1AEF73A57DCC4950801AA17537D6CCD32F4",
+      "sha256": "99345DF8E24C5204BD35C6C50BC3B1AEF73A57DCC4950801AA17537D6CCD32F4",
+      "status": "copied",
+      "targetSha256": "99345DF8E24C5204BD35C6C50BC3B1AEF73A57DCC4950801AA17537D6CCD32F4"
+    },
+    {
+      "source": null,
+      "target": "README.md",
+      "sourceSha256": null,
+      "sha256": "2611479B61859FAA9FB53E318DE11C35D9B663FFC968C3A7EF773D572EA18432",
+      "targetSha256": "2611479B61859FAA9FB53E318DE11C35D9B663FFC968C3A7EF773D572EA18432",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "integration/README.md",
+      "sourceSha256": null,
+      "sha256": "EE3BA56EABD3DE629F5F531ADB9FF1078E2970DC687D0E4C9592CEE496479B42",
+      "targetSha256": "EE3BA56EABD3DE629F5F531ADB9FF1078E2970DC687D0E4C9592CEE496479B42",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "patches/0016-consolidated-stream-snapshot.patch",
+      "sourceSha256": null,
+      "sha256": "A49E2E4F29FD0FFC89CDC5FF19065FD2247887A2C5C2ED12FC77E6EFDB5796E9",
+      "targetSha256": "A49E2E4F29FD0FFC89CDC5FF19065FD2247887A2C5C2ED12FC77E6EFDB5796E9",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "AGENTS.md",
+      "sourceSha256": null,
+      "sha256": "EC6AEA181A622299D7A27B5E9C075B9B827E3DFE8B8FCCDED97D79D668A305B3",
+      "targetSha256": "EC6AEA181A622299D7A27B5E9C075B9B827E3DFE8B8FCCDED97D79D668A305B3",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "qualification-inputs.json",
+      "sourceSha256": null,
+      "sha256": "BA0AC10BD178879E4B2F395B080CC66E88955FAD3D9B5107352BB5C0D82A1FC9",
+      "targetSha256": "BA0AC10BD178879E4B2F395B080CC66E88955FAD3D9B5107352BB5C0D82A1FC9",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": ".gitignore",
+      "sourceSha256": null,
+      "sha256": "461CEBF380945229E41775117F25D76FBF36FC8DB2C5C9034114AAC63D297609",
+      "targetSha256": "461CEBF380945229E41775117F25D76FBF36FC8DB2C5C9034114AAC63D297609",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "verify-import.ps1",
+      "sourceSha256": null,
+      "sha256": "475D8B2C0469225FE4898520F5BC9ACDA73792850E6FFE280B7B4CC7FB6667A5",
+      "targetSha256": "475D8B2C0469225FE4898520F5BC9ACDA73792850E6FFE280B7B4CC7FB6667A5",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "MIGRATION.md",
+      "sourceSha256": null,
+      "sha256": "AAD057381D6D3165DCD4C09554CB4B8068B85500A07BCB52206BD6A6A65DF8D2",
+      "targetSha256": "AAD057381D6D3165DCD4C09554CB4B8068B85500A07BCB52206BD6A6A65DF8D2",
+      "status": "generated-migration"
+    },
+    {
+      "source": null,
+      "target": "CMakeLists.txt",
+      "sourceSha256": null,
+      "sha256": "4786B95175433564A0B69B23CB03468EB5886A07DB71793C5CFC97F026A341D6",
+      "targetSha256": "4786B95175433564A0B69B23CB03468EB5886A07DB71793C5CFC97F026A341D6",
+      "status": "generated-migration"
+    }
+  ],
+  "verification": {
+    "windowsBuild": "PASS",
+    "offlineTests": "21/21 PASS",
+    "linuxBuild": "unverified",
+    "hardwareNetwork": "not run",
+    "patchReconciliation": "38/38 normalized-text canonical files after 0016",
+    "upstreamArchiveReplay": "unverified: archive absent"
+  }
+}

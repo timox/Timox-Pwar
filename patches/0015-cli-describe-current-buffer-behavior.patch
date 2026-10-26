@@ -1,0 +1,30 @@
+diff --git a/linux/pwar_cli.c b/linux/pwar_cli.c
+--- a/linux/pwar_cli.c
++++ b/linux/pwar_cli.c
+@@ -18,6 +18,8 @@
+ #define DEFAULT_BUFFER_SIZE 64
+ 
+-static void usage(void) {
+-    puts("Usage: pwar_cli [options]\n"
++static void usage(const char *program) {
++    const char *name = strrchr(program, '/');
++    printf("Usage: %s [options]\n", name ? name + 1 : program);
++    puts(
+          "  --help, -h              Show help without starting audio\n"
+          "  --ip, -i IPv4           Windows destination IPv4\n"
+@@ -30,6 +32,6 @@
+          "  --check-config          Validate and display settings without audio\n"
+          "Linux receive port: 8321. Sample rate request: 48000 Hz.\n"
+-         "Current network callback supports at most 128 frames; larger actual\n"
+-         "PipeWire quanta produce silence until the transport is upgraded.");
++         "The requested buffer is a latency hint; PipeWire may choose another quantum.\n"
++         "The stream backend supports asynchronous mode only (no --oneshot).");
+ }
+ 
+@@ -61,5 +63,5 @@
+         const char *option = argv[i];
+         if (!strcmp(option, "--help") || !strcmp(option, "-h")) {
+-            usage();
++            usage(argv[0]);
+             return 0;
+         } else if (!strcmp(option, "--check-config")) {

@@ -1,0 +1,71 @@
+diff --git a/protocol/pwar_router.c b/protocol/pwar_router.c
+index 0fd5e24..1abae84 100644
+--- a/protocol/pwar_router.c
++++ b/protocol/pwar_router.c
+@@ -18,19 +18,34 @@ void pwar_router_init(pwar_router_t *router, uint32_t channel_count) {
+     router->current_seq = (uint64_t)(-1); // Initialize to invalid seq
+ }
+ 
++static int valid_packet(const pwar_router_t *router, const pwar_packet_t *packet,
++                        const float *output, uint32_t max_samples, uint32_t channels) {
++    if (!router || !packet || !output || !max_samples || !channels ||
++        channels > PWAR_CHANNELS || !router->channel_count ||
++        router->channel_count > PWAR_CHANNELS) return 0;
++    if (!packet->n_samples || packet->n_samples > PWAR_PACKET_MAX_CHUNK_SIZE ||
++        !packet->num_packets ||
++        packet->num_packets > sizeof(router->packet_received) / sizeof(router->packet_received[0]) ||
++        packet->num_packets > (uint32_t)PWAR_ROUTER_MAX_BUFFER_SIZE / packet->n_samples ||
++        packet->packet_index >= packet->num_packets) return 0;
++    return 1;
++}
++
+ int pwar_router_process_streaming_packet(pwar_router_t *router, pwar_packet_t *input_packet, float *output_buffers, uint32_t max_samples, uint32_t channel_count) {
+-    int index = input_packet->seq - router->current_seq;
+-    if (index >= 0 && index < input_packet->num_packets) {
+-        input_packet->packet_index = index;
+-        input_packet->seq = router->current_seq;
++    if (!router || !input_packet) return -1;
++    pwar_packet_t packet = *input_packet;
++    const uint64_t index = packet.seq - router->current_seq;
++    if (index < packet.num_packets) {
++        packet.packet_index = (uint32_t)index;
++        packet.seq = router->current_seq;
+     }
++    if (!valid_packet(router, &packet, output_buffers, max_samples, channel_count)) return -2;
++    *input_packet = packet;
+     return pwar_router_process_packet(router, input_packet, output_buffers, max_samples, channel_count);
+ }
+ 
+ int pwar_router_process_packet(pwar_router_t *router, pwar_packet_t *input_packet, float *output_buffers, uint32_t max_samples, uint32_t channel_count) {
+-    if (!input_packet || !output_buffers) return -1;
+-    if (input_packet->num_packets == 0 || input_packet->packet_index >= input_packet->num_packets) return -2;
+-    if (input_packet->n_samples > PWAR_PACKET_MAX_CHUNK_SIZE) return -3;
++    if (!valid_packet(router, input_packet, output_buffers, max_samples, channel_count)) return -2;
+     // Reset state if new buffer sequence detected
+     if (input_packet->seq != router->current_seq) {
+         router->current_seq = input_packet->seq;
+@@ -65,9 +80,12 @@ int pwar_router_process_packet(pwar_router_t *router, pwar_packet_t *input_packe
+ 
+ // Returns 0 on success, -1 if not enough space in packets array, -2 if invalid arguments
+ int pwar_router_send_buffer(pwar_router_t *router, uint32_t chunk_size, float *samples, uint32_t n_samples, uint32_t channel_count, pwar_packet_t *packets, const uint32_t packet_count, uint32_t *packets_to_send) {
+-    (void)router; // Unused in this implementation, but could be used for future enhancements
+-    if (!samples || !packets || !packets_to_send || channel_count == 0 || n_samples == 0) return -2;
+-    uint32_t total_packets = (n_samples + chunk_size - 1) / chunk_size;
++    if (!packets_to_send) return -2;
++    *packets_to_send = 0;
++    if (!router || !samples || !packets || !channel_count || channel_count > PWAR_CHANNELS ||
++        !n_samples || n_samples > PWAR_ROUTER_MAX_BUFFER_SIZE ||
++        !chunk_size || chunk_size > PWAR_PACKET_MAX_CHUNK_SIZE) return -2;
++    uint32_t total_packets = n_samples / chunk_size + (n_samples % chunk_size != 0);
+     if (total_packets > packet_count) {
+         *packets_to_send = 0;
+         return -1; // Not enough space in packets array
+@@ -77,7 +95,7 @@ int pwar_router_send_buffer(pwar_router_t *router, uint32_t chunk_size, float *s
+         uint32_t ns = (n_samples - start > chunk_size) ? chunk_size : (n_samples - start);
+         packets[p].packet_index = p;
+         packets[p].num_packets = total_packets;
+-        packets[p].n_samples = ns;
++        packets[p].n_samples = (uint16_t)ns;
+         packets[p].seq_timestamp = router->seq_timestamp;
+         for (uint32_t ch = 0; ch < channel_count; ++ch) {
+             memcpy(packets[p].samples[ch], &samples[ch * n_samples + start], ns * sizeof(float));

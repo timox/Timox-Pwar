@@ -1,0 +1,82 @@
+diff --git a/protocol/pwar_router.h b/protocol/pwar_router.h
+index 0315bc6..af58b6b 100644
+--- a/protocol/pwar_router.h
++++ b/protocol/pwar_router.h
+@@ -36,6 +36,7 @@ typedef struct {
+     uint16_t fragment_frames[PWAR_ROUTER_MAX_BUFFER_SIZE / PWAR_PACKET_MIN_CHUNK_SIZE];
+     uint8_t active;
+     uint8_t delivered;
++    uint32_t synthesized_packets;
+ } pwar_router_t;
+ 
+ void pwar_router_init(pwar_router_t *router, uint32_t channel_count);
+diff --git a/protocol/pwar_router.c b/protocol/pwar_router.c
+index db55c80..883db90 100644
+--- a/protocol/pwar_router.c
++++ b/protocol/pwar_router.c
+@@ -32,6 +32,10 @@ int pwar_router_process_streaming_packet(pwar_router_t *router, pwar_packet_t *i
+         float *output_buffers, uint32_t max_samples, uint32_t channel_count) {
+     if (!router || !input_packet) return -1;
+     pwar_packet_t packet = *input_packet;
++    packet.packet_index = 0;
++    if ((uint64_t)packet.num_packets * packet.n_samples > max_samples ||
++        (uint64_t)packet.num_packets * packet.n_samples > PWAR_ROUTER_MAX_BUFFER_SIZE)
++        return -2;
+     if (router->active) {
+         const uint64_t index = packet.seq - router->current_seq;
+         if (index < router->expected_packets) {
+@@ -39,6 +43,21 @@ int pwar_router_process_streaming_packet(pwar_router_t *router, pwar_packet_t *i
+             packet.seq = router->current_seq;
+         }
+     }
++    if (!valid_packet(router, &packet, output_buffers, max_samples, channel_count)) return -2;
++    if (router->active && packet.seq == router->current_seq) {
++        if (packet.num_packets != router->expected_packets) return -2;
++        for (uint32_t i = 0; i < packet.packet_index; ++i) {
++            if (router->packet_received[i]) continue;
++            const uint32_t slot = i * PWAR_PACKET_MAX_CHUNK_SIZE;
++            for (uint32_t channel = 0; channel < channel_count; ++channel)
++                memset(router->buffers[channel] + slot, 0,
++                       packet.n_samples * sizeof(float));
++            router->fragment_frames[i] = packet.n_samples;
++            router->packet_received[i] = 1;
++            ++router->received_packets;
++            ++router->synthesized_packets;
++        }
++    }
+     const int result = pwar_router_process_packet(router, &packet, output_buffers,
+                                                  max_samples, channel_count);
+     if (result >= 0) *input_packet = packet;
+diff --git a/windows/asio/pwarASIO.cpp b/windows/asio/pwarASIO.cpp
+index 4e9340e..ad64082 100644
+--- a/windows/asio/pwarASIO.cpp
++++ b/windows/asio/pwarASIO.cpp
+@@ -627,7 +627,15 @@ void pwarASIO::udp_packet_listener() {
+             pkt.num_packets =  blockFrames / chunk_size;
+             latency_manager_process_packet_client(&pkt);
+ 
++            const uint32_t synthesized_before = router.synthesized_packets;
+             int samples_ready = pwar_router_process_streaming_packet(&router, &pkt, input_buffers, blockFrames, PWAR_MAX_CHANNELS);
++            if (router.synthesized_packets != synthesized_before)
++                latency_manager_report_xrun();
++            if (samples_ready > 0 && samples_ready != blockFrames) {
++                memset(input_buffers, 0, PWAR_MAX_CHANNELS * blockFrames * sizeof(float));
++                samples_ready = blockFrames;
++                latency_manager_report_xrun();
++            }
+ 
+             if (started && (samples_ready > 0)) {
+                 uint64_t seq = pkt.seq;
+diff --git a/linux/libpwar.c b/linux/libpwar.c
+index 8777c4f..098754d 100644
+--- a/linux/libpwar.c
++++ b/linux/libpwar.c
+@@ -239,7 +239,7 @@ static void *receiver_thread(void *userdata) {
+             atomic_store_explicit(&data->current_windows_buffer_size,
+                 (uint32_t)packet.n_samples * packet.num_packets, memory_order_relaxed);
+             latency_manager_process_packet_server(&packet);
+-            int samples_ready = pwar_router_process_streaming_packet(&data->linux_router,
++            int samples_ready = pwar_router_process_packet(&data->linux_router,
+                 &packet, linux_output_buffers, MAX_BUFFER_SIZE, NUM_CHANNELS);
+             if (samples_ready > 0) {
+                 for (int frame = 0; frame < samples_ready; ++frame) {

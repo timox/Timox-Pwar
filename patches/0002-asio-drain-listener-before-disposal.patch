@@ -1,0 +1,145 @@
+diff --git a/windows/asio/pwarASIO.cpp b/windows/asio/pwarASIO.cpp
+index 892ab4c..2271a2f 100644
+--- a/windows/asio/pwarASIO.cpp
++++ b/windows/asio/pwarASIO.cpp
+@@ -125,14 +125,12 @@ pwarASIO::pwarASIO(LPUNKNOWN pUnk, HRESULT* phr)
+     
+     parseConfigFile();
+     initUdpSender();
+-    startUdpListener();
+ }
+ 
+ pwarASIO::~pwarASIO() {
+-    closeUdpSender();
+-    stopUdpListener();
+     stop();
+     disposeBuffers();
++    closeUdpSender();
+ }
+ 
+ void pwarASIO::getDriverName(char* name) {
+@@ -162,16 +160,29 @@ ASIOBool pwarASIO::init(void* sysRef) {
+ }
+ 
+ ASIOError pwarASIO::start() {
++    if (started) return ASE_InvalidMode;
+     if (!callbacks) return ASE_NotPresent;
+     started = false;
+     samplePosition = 0;
+     theSystemTime.lo = theSystemTime.hi = 0;
+     toggle = 0;
+     started = true;
++    try {
++        startUdpListener();
++    } catch (...) {
++        udpListenerRunning = false;
++        started = false;
++        return ASE_HWMalfunction;
++    }
+     return ASE_OK;
+ }
+ 
+ ASIOError pwarASIO::stop() {
++    // ASIO control calls must run on the host control thread, not inside the
++    // audio callback. Never self-join or free memory beneath that callback.
++    if (udpListenerThread.joinable() && udpListenerThread.get_id() == std::this_thread::get_id())
++        return ASE_InvalidMode;
++    stopUdpListener();
+     started = false;
+     return ASE_OK;
+ }
+@@ -214,6 +225,7 @@ ASIOError pwarASIO::getSampleRate(ASIOSampleRate* sampleRate) {
+ }
+ 
+ ASIOError pwarASIO::setSampleRate(ASIOSampleRate sampleRate) {
++    if (started) return ASE_InvalidMode;
+     if (sampleRate != 44100.0 && sampleRate != 48000.0) return ASE_NoClock;
+     if (sampleRate != this->sampleRate) {
+         this->sampleRate = sampleRate;
+@@ -293,6 +305,7 @@ ASIOError pwarASIO::getChannelInfo(ASIOChannelInfo* info) {
+ }
+ 
+ ASIOError pwarASIO::createBuffers(ASIOBufferInfo* bufferInfos, long numChannels, long bufferSize, ASIOCallbacks* callbacks) {
++    if (started) return ASE_InvalidMode;
+     if (!bufferInfos || !callbacks) {
+         strcpy(errorMessage, "Null pointer passed to createBuffers");
+         return ASE_InvalidParameter;
+@@ -394,7 +407,8 @@ error:
+ 
+ ASIOError pwarASIO::disposeBuffers() {
+     // Stop audio processing first
+-    stop();
++    const ASIOError stopped = stop();
++    if (stopped != ASE_OK) return stopped;
+     
+     // Clear callbacks to prevent any more audio callbacks
+     callbacks = nullptr;
+@@ -525,6 +539,15 @@ void pwarASIO::udp_packet_listener() {
+         if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
+         return;
+     }
++    // Periodically observe cancellation even when the Linux peer is silent.
++    const DWORD receiveTimeoutMs = 20;
++    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,
++                   reinterpret_cast<const char*>(&receiveTimeoutMs), sizeof(receiveTimeoutMs)) == SOCKET_ERROR) {
++        closesocket(sockfd);
++        WSACleanup();
++        if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
++        return;
++    }
+     // Set SO_RCVBUF to minimal size for low latency
+     int rcvbuf = 1024; // 1 KB
+     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (const char*)&rcvbuf, sizeof(rcvbuf));
+@@ -539,9 +562,9 @@ void pwarASIO::udp_packet_listener() {
+     if (bind(sockfd, reinterpret_cast<sockaddr*>(&servaddr), sizeof(servaddr)) == SOCKET_ERROR) {
+         closesocket(sockfd);
+         WSACleanup();
++        if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
+         return;
+     }
+-    udpListenerRunning = true;
+     pwar_packet_t output_packets[32];
+     uint32_t packets_to_send = 0;
+     while (udpListenerRunning) {
+@@ -552,6 +575,12 @@ void pwarASIO::udp_packet_listener() {
+         DWORD bytesReceived = 0;
+         DWORD flags = 0;
+         int res = WSARecvFrom(sockfd, &wsaBuf, 1, &bytesReceived, &flags, reinterpret_cast<sockaddr*>(&cliaddr), &len, NULL, NULL);
++        if (!udpListenerRunning) break;
++        if (res == SOCKET_ERROR) {
++            const int receiveError = WSAGetLastError();
++            if (receiveError == WSAETIMEDOUT || receiveError == WSAEMSGSIZE || receiveError == WSAECONNRESET) continue;
++            break;
++        }
+         if (res == 0 && bytesReceived >= sizeof(pwar_packet_t)) {
+             pwar_packet_t pkt;
+             memcpy(&pkt, buffer, sizeof(pwar_packet_t));
+@@ -625,6 +654,7 @@ void pwarASIO::udp_packet_listener() {
+     }
+     closesocket(sockfd);
+     WSACleanup();
++    if (mmcssHandle) AvRevertMmThreadCharacteristics(mmcssHandle);
+ }
+ 
+ void pwarASIO::startUdpListener() {
+diff --git a/windows/asio/pwarASIO.h b/windows/asio/pwarASIO.h
+index 496d222..5fcfa07 100644
+--- a/windows/asio/pwarASIO.h
++++ b/windows/asio/pwarASIO.h
+@@ -10,6 +10,7 @@
+ 
+ #include "asiosys.h"
+ #include <thread>
++#include <atomic>
+ #include <string>
+ #include "../../protocol/pwar_packet.h"
+ #include "../../protocol/pwar_router.h"
+@@ -104,7 +105,7 @@ private:
+     char errorMessage[128]{};
+     uint64_t _timestamp = 0;
+     std::thread udpListenerThread;
+-    bool udpListenerRunning = false;
++    std::atomic<bool> udpListenerRunning{false};
+     SOCKET udpSendSocket = INVALID_SOCKET;
+     bool udpWSAInitialized = false;
+     struct sockaddr_in udpSendAddr;
