@@ -1,5 +1,9 @@
 # Timox-Pwar
 
+Current candidate: **0.1.0-alpha.1**, independently versioned; control protocol
+remains **v1**. See [RELEASE.md](RELEASE.md) for build commands, binary provenance
+and coordinated engine/GUI artifact pins. No public release is implied.
+
 Standalone source snapshot of the PWAR transport, Windows ASIO client and Linux
 PipeWire backends. See [MIGRATION.md](MIGRATION.md) for provenance and build commands,
 and [client/CONTROL.md](client/CONTROL.md) for the unchanged version 1 control protocol.

@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include "libpwar.h"
+#include "pwar_version.h"
 
 #define DEFAULT_STREAM_IP "192.168.66.3"
 #define DEFAULT_STREAM_PORT 8321
@@ -21,6 +22,7 @@ static void usage(const char *program) {
     printf("Usage: %s [options]\n", name ? name + 1 : program);
     puts(
          "  --help, -h              Show help without starting audio\n"
+         "  --version               Show product version without starting audio\n"
          "  --ip, -i IPv4           Windows destination IPv4\n"
          "  --port, -p PORT         Destination UDP port (1..65535)\n"
          "  --buffer_size, -b N     Requested PipeWire buffer (1..4096 frames)\n"
@@ -55,7 +57,10 @@ int main(int argc, char *argv[]) {
     int check_config = 0;
     for (int i = 1; i < argc; ++i) {
         const char *option = argv[i];
-        if (!strcmp(option, "--help") || !strcmp(option, "-h")) {
+        if (!strcmp(option, "--version")) {
+            puts("Timox PWAR " PWAR_PRODUCT_VERSION " (control protocol v1)");
+            return 0;
+        } else if (!strcmp(option, "--help") || !strcmp(option, "-h")) {
             usage(argv[0]);
             return 0;
         } else if (!strcmp(option, "--check-config")) {

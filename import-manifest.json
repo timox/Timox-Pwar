@@ -18,7 +18,8 @@
       "sourceSha256": "AF4D07169C0B4FEE5F04CE19D031999BC258ECA268A44F8B19883B685808CC65",
       "sha256": "af4d07169c0b4fee5f04ce19d031999bc258eca268a44f8b19883b685808cc65",
       "status": "copied",
-      "targetSha256": "af4d07169c0b4fee5f04ce19d031999bc258eca268a44f8b19883b685808cc65"
+      "targetSha256": "43e6f17a23736eb4bea2aa1e8dbd8ae1712cd328c14be685c9183d8e4dbe5ef4",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     },
     {
       "source": "patches/pwar/client/control_protocol_tests.cpp",
@@ -66,7 +67,8 @@
       "sourceSha256": "AED42995F986759EDD2662F2C1070D5189213670A12B28EDA78A2042E33FE0BF",
       "sha256": "aed42995f986759edd2662f2c1070d5189213670a12b28eda78a2042e33fe0bf",
       "status": "copied",
-      "targetSha256": "aed42995f986759edd2662f2c1070d5189213670a12b28eda78a2042e33fe0bf"
+      "targetSha256": "2499097e7ab39921ce5992976e38e89232133ebe51166dd939959e441d552cf0",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     },
     {
       "source": "patches/pwar/client/REAL_MACHINE_QUALIFICATION.md",
@@ -250,7 +252,8 @@
       "sourceSha256": "9C2AC361D7A3A809C6B5ECDE7033923ECD8DD3C1BB06513CA0222D29BE3DCCC2",
       "sha256": "6efda7de1a251457712f77ed70cc97296fbf4705fa070817d253fcb22090f617",
       "status": "adapted-build-only",
-      "targetSha256": "6efda7de1a251457712f77ed70cc97296fbf4705fa070817d253fcb22090f617"
+      "targetSha256": "40bd360f915c2f5401f726ee6ad92d82056383e3ec7e5a230137402e1beeaf8e",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     },
     {
       "source": "build_pwar_reconciled_20261025/linux/libpwar.c",
@@ -274,7 +277,8 @@
       "sourceSha256": "33076C738AAD6FFF6610FF9606C02D30AE1B6A873A7458A7948203771704945B",
       "sha256": "33076c738aad6fff6610ff9606c02d30ae1b6a873a7458a7948203771704945b",
       "status": "copied",
-      "targetSha256": "33076c738aad6fff6610ff9606c02d30ae1b6a873a7458a7948203771704945b"
+      "targetSha256": "8c83fbad0f63533a7bbd6fcd8791e97970e4cbfa8b564c58be685ec952c3bc61",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     },
     {
       "source": "build_pwar_reconciled_20261025/linux/pwar_gui.cpp",
@@ -825,8 +829,9 @@
       "target": "README.md",
       "sourceSha256": null,
       "sha256": "2611479b61859faa9fb53e318de11c35d9b663ffc968c3a7ef773d572ea18432",
-      "targetSha256": "2611479b61859faa9fb53e318de11c35d9b663ffc968c3a7ef773d572ea18432",
-      "status": "generated-migration"
+      "targetSha256": "a80d63210924f8b569062491d13889e4c52fa1fee83f8b79a07803a34feebdcf",
+      "status": "generated-migration",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     },
     {
       "source": null,
@@ -889,8 +894,9 @@
       "target": "CMakeLists.txt",
       "sourceSha256": null,
       "sha256": "4786b95175433564a0b69b23cb03468eb5886a07db71793c5cfc97f026a341d6",
-      "targetSha256": "4786b95175433564a0b69b23cb03468eb5886a07db71793c5cfc97f026a341d6",
-      "status": "generated-migration"
+      "targetSha256": "c536f58a5a17aa4d87e1ad58429f9cbc8a1b984171d4ef1ae155324edda7f958",
+      "status": "generated-migration",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     },
     {
       "source": null,
@@ -899,6 +905,69 @@
       "sha256": "e86ec9460f33310aaa782f0e9a84dea1277765bd857560165c520ffdf27e47f0",
       "targetSha256": "e86ec9460f33310aaa782f0e9a84dea1277765bd857560165c520ffdf27e47f0",
       "status": "generated"
+    },
+    {
+      "source": null,
+      "target": ".github/workflows/pwar-build.yml",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "c0dde65c0fe0f80c57dadce1980e2e21aded5b8963a51f3f2cf0668e127f6ef8",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
+    },
+    {
+      "source": null,
+      "target": "RELEASE.md",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "9406af655c24c057f32a152bfffa4a25afee457e5a0fe32c9d785dcc67c8afe4",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
+    },
+    {
+      "source": null,
+      "target": "client/pwar_version.rc",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "2d2ae9b46a40c66d237cd92edef46a76666b32cc1daa0ece12dea8e2f589dbd8",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
+    },
+    {
+      "source": null,
+      "target": "cmake/PwarVersion.cmake",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "7d51613f452853f5966428c3d8641f80efe0f3c4a549c359bd35c7a7824b3d84",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
+    },
+    {
+      "source": null,
+      "target": "cmake/WriteBuildInfo.cmake",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "b1080288bb722682e5293fb7db7edaa52df40b60b69a66bb232100e6b74634a2",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
+    },
+    {
+      "source": null,
+      "target": "cmake/pwar_version.h.in",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "7588b843dae7ff31639f0e53d555286d1dccf681498841fa61569f1a89d350e2",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
+    },
+    {
+      "source": null,
+      "target": "verify-import.cjs",
+      "sourceSha256": null,
+      "sha256": null,
+      "status": "generated",
+      "targetSha256": "aff34124051ca941c4f8eb2e6ec5bbb72ebfb93805b3dde37a93ef0e159aad8c",
+      "transformation": "; Independent PWAR 0.1.0-alpha.1 version and binary provenance, 2026-10-31"
     }
   ],
   "verification": {

@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.20)
+include("${CMAKE_CURRENT_LIST_DIR}/PwarVersion.cmake")
+find_package(Git REQUIRED)
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${SOURCE_ROOT}" rev-parse HEAD
+    OUTPUT_VARIABLE revision OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Cannot identify PWAR source revision")
+endif()
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${SOURCE_ROOT}" status --porcelain --untracked-files=normal
+    OUTPUT_VARIABLE changes RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Cannot determine whether PWAR sources are clean")
+endif()
+set(dirty false)
+if(NOT "${changes}" STREQUAL "")
+    set(dirty true)
+endif()
+file(SHA256 "${BINARY_FILE}" binary_hash)
+get_filename_component(binary_name "${BINARY_FILE}" NAME)
+file(WRITE "${OUTPUT_FILE}"
+    "{\n  \"formatVersion\": 1,\n  \"repository\": \"timox/Timox-Pwar\",\n  \"version\": \"${PWAR_VERSION}\",\n  \"controlProtocolVersion\": ${PWAR_CONTROL_PROTOCOL_VERSION},\n  \"revision\": \"${revision}\",\n  \"dirty\": ${dirty},\n  \"platform\": \"${BINARY_PLATFORM}\",\n  \"binaryName\": \"${binary_name}\",\n  \"binarySha256\": \"${binary_hash}\"\n}\n")

@@ -1,0 +1,75 @@
+name: PWAR versioned candidates
+on:
+  pull_request:
+  push:
+    branches: [migration/extraction-20261026]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pwar-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Build client and offline tests
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $version = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
+          $generator = switch (([version]$version).Major) { 18 { 'Visual Studio 18 2026' } 17 { 'Visual Studio 17 2022' } default { throw "Unsupported Visual Studio: $version" } }
+          cmake -S . -B build -G $generator -A x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build --config Release --parallel 4
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir build -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node verify-import.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $receipt = Get-Content build/Release/pwar-build.json -Raw | ConvertFrom-Json
+          if ($receipt.dirty -or $receipt.revision -ne (git rev-parse HEAD)) { throw 'PWAR source provenance mismatch' }
+          if ($receipt.binarySha256 -ne (Get-FileHash build/Release/PwarAsioClient.exe -Algorithm SHA256).Hash.ToLowerInvariant()) { throw 'PWAR binary hash mismatch' }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Timox-Pwar-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          path: |
+            build/Release/PwarAsioClient.exe
+            build/Release/pwar-build.json
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Build backends and offline tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libpipewire-0.3-dev pkg-config
+          cmake -S . -B build -DPWAR_BUILD_LINUX=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_RPATH_USE_ORIGIN=ON -DCMAKE_DISABLE_FIND_PACKAGE_Qt5=TRUE
+          cmake --build build --parallel 4 --target PwarLinuxBuildInfo PwarControlProtocolTests PwarClientFrameRingTests PwarRouterBoundsTests PwarLinuxCallbackTests PwarProtocolAudit PwarReceiveBufferAudit PwarAudioQueueTests
+          ctest --test-dir build --output-on-failure
+          node verify-import.cjs
+          node - <<'JS'
+          const fs=require('fs'),crypto=require('crypto'),cp=require('child_process');
+          const revision=cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+          for(const name of ['pwar_cli','pwar_stream_cli','libpwar']) {
+            const r=JSON.parse(fs.readFileSync(`build/linux/${name}-build.json`));
+            const hash=crypto.createHash('sha256').update(fs.readFileSync(`build/linux/${r.binaryName}`)).digest('hex');
+            if(r.dirty||r.revision!==revision||r.binarySha256!==hash) throw Error(`Invalid ${name} provenance`);
+          }
+          JS
+          tar -czf Timox-Pwar-linux-x64.tar.gz -C build/linux pwar_cli pwar_stream_cli libpwar.so libpwar.so.0 libpwar.so.0.1.0 pwar_cli-build.json pwar_stream_cli-build.json libpwar-build.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Timox-Pwar-linux-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          path: Timox-Pwar-linux-x64.tar.gz

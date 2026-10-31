@@ -1,0 +1,26 @@
+#include <windows.h>
+#include "pwar_version.h"
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION PWAR_FILE_VERSION
+ PRODUCTVERSION PWAR_FILE_VERSION
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS VS_FF_PRERELEASE
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Timox PWAR ASIO Client\0"
+            VALUE "FileVersion", PWAR_FILE_VERSION_STRING "\0"
+            VALUE "OriginalFilename", "PwarAsioClient.exe\0"
+            VALUE "ProductName", "Timox-Pwar\0"
+            VALUE "ProductVersion", PWAR_PRODUCT_VERSION "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END
