@@ -7,6 +7,7 @@
 #include "pwar_router.h"
 #include "frame_ring.h"
 #include "control_protocol.h"
+#include "pwar_version.h"
 #include <algorithm>
 #include <atomic>
 #include <charconv>
@@ -279,6 +280,10 @@ bool supervise(Client& client) {
 }
 }
 int main(int argc,char** argv) {
+    if(argc==2 && std::strcmp(argv[1],"--version")==0) {
+        std::puts("Timox PWAR " PWAR_PRODUCT_VERSION " (control protocol v1)");
+        return 0;
+    }
     if(argc==2 && std::strcmp(argv[1],"--help")==0) {
         std::puts("PWAR ASIO client (qualification): --driver-clsid GUID --peer IPv4 (--seconds 1..86400 | --stdio) [--max-queue-ms 1..2000]\nSupervised mode requires inherited stdin/stdout pipes; JSON v1 status/stop, one object per line. Uses existing ASIO rate/block, channels 1/2 in both directions. Currently 48 kHz float32 only. UDP 8321. Local queue age limit defaults to 100 ms; not an end-to-end latency guarantee. No routing changes. Drift compensation and automatic restart are not yet qualified.");return 0;
     }

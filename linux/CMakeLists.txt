@@ -67,6 +67,24 @@ target_include_directories(pwar_stream_cli PRIVATE ${PIPEWIRE_INCLUDE_DIRS})
 target_link_libraries(pwar_stream_cli ${PIPEWIRE_LIBRARIES} ${MATH_LIB} Threads::Threads)
 target_compile_options(pwar_stream_cli PRIVATE ${PIPEWIRE_CFLAGS_OTHER} -Wall -Wextra)
 
+set_target_properties(pwar PROPERTIES VERSION "${PWAR_LIBRARY_VERSION}" SOVERSION 0)
+foreach(cli pwar_cli pwar_stream_cli)
+    target_include_directories(${cli} PRIVATE "${CMAKE_BINARY_DIR}/generated")
+    add_test(NAME ${cli}Version COMMAND ${cli} --version)
+    set_tests_properties(${cli}Version PROPERTIES PASS_REGULAR_EXPRESSION "Timox PWAR ${PWAR_VERSION}")
+endforeach()
+add_custom_target(PwarLinuxBuildInfo ALL
+    COMMAND ${CMAKE_COMMAND} "-DSOURCE_ROOT=${CMAKE_SOURCE_DIR}" "-DBINARY_PLATFORM=linux"
+        "-DBINARY_FILE=$<TARGET_FILE:pwar_cli>" "-DOUTPUT_FILE=$<TARGET_FILE_DIR:pwar_cli>/pwar_cli-build.json"
+        -P "${CMAKE_SOURCE_DIR}/cmake/WriteBuildInfo.cmake"
+    COMMAND ${CMAKE_COMMAND} "-DSOURCE_ROOT=${CMAKE_SOURCE_DIR}" "-DBINARY_PLATFORM=linux"
+        "-DBINARY_FILE=$<TARGET_FILE:pwar_stream_cli>" "-DOUTPUT_FILE=$<TARGET_FILE_DIR:pwar_stream_cli>/pwar_stream_cli-build.json"
+        -P "${CMAKE_SOURCE_DIR}/cmake/WriteBuildInfo.cmake"
+    COMMAND ${CMAKE_COMMAND} "-DSOURCE_ROOT=${CMAKE_SOURCE_DIR}" "-DBINARY_PLATFORM=linux"
+        "-DBINARY_FILE=$<TARGET_FILE:pwar>" "-DOUTPUT_FILE=$<TARGET_FILE_DIR:pwar>/libpwar-build.json"
+        -P "${CMAKE_SOURCE_DIR}/cmake/WriteBuildInfo.cmake"
+    DEPENDS pwar_cli pwar_stream_cli pwar VERBATIM)
+
 # GUI executable (only if Qt5 is found)
 if(Qt5_FOUND)
     # Enable automoc for Qt

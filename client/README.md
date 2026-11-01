@@ -5,13 +5,14 @@ Il fournit les commandes versionnées `status` et `stop`, ainsi que l'arrêt sur
 fermeture du pipe parent. Le raccordement à l'API Timox n'est pas implémenté ici.
 
 Client autonome en qualification, construit par le CMake PWAR avec
-`PWAR_BUILD_WINDOWS_DRIVER=ON` et un SDK ASIO local. Il n'installe aucun pilote
+`PWAR_BUILD_WINDOWS_CLIENT=ON` et le SDK ASIO local épinglé. `--version` affiche
+la version produit sans ouvrir de pilote ni de socket. Il n'installe aucun pilote
 et ne modifie ni fréquence, ni bloc, ni routage Timox.
 
 Exemple avec le pilote TimoxVasio enregistré :
 
 ```powershell
-.\build_pwar_reconciled_tests\Release\PwarAsioClient.exe `
+.\build\Release\PwarAsioClient.exe `
   --driver-clsid '{A4D39126-78CB-4D89-9E0A-54494D4F5856}' `
   --peer 10.1.0.101 --seconds 30
 ```
